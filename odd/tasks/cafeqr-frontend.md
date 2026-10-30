@@ -6,7 +6,7 @@
 - **Branch:** `feat/frontend-foundation` (based on `main` at `7f0b2ff`)
 - **Delivery strategy:** `ask-on-risk`
 - **Test runner:** `pnpm nx build admin` plus HTTP smoke checks through the dev proxy.
-- **Status:** In progress
+- **Status:** Done — committed on `feat/frontend-foundation`, pending review/merge.
 
 ## Specs
 
