@@ -10,14 +10,14 @@ import {
 } from 'class-validator';
 
 export class ListUsersQueryDto {
-  @ApiPropertyOptional({ default: 1 })
+  @ApiPropertyOptional({ default: 1, type: Number })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   page = 1;
 
-  @ApiPropertyOptional({ default: 20 })
+  @ApiPropertyOptional({ default: 20, type: Number })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
