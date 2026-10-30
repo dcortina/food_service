@@ -65,6 +65,13 @@ prisma/generated
 apps/api/src/generated
 prisma/*.db
 
+# print agent local queue
+print-agent.sqlite
+print-agent.sqlite-*
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
 # local agent state
 .atl/
 

@@ -1,0 +1,25 @@
+{
+  "name": "print-agent",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/print-agent/src",
+  "projectType": "application",
+  "tags": ["scope:print-agent", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/print-agent",
+        "main": "apps/print-agent/src/main.ts",
+        "tsConfig": "apps/print-agent/tsconfig.app.json",
+        "assets": []
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "print-agent:build"
+      }
+    }
+  }
+}

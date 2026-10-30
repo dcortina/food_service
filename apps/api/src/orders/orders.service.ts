@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
@@ -9,6 +10,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { AuditService } from '../common/audit/audit.service';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { PrintService } from '../print/print.service';
 import { RealtimeService } from '../realtime/realtime.service';
 import { BusinessDayService } from './business-day.service';
 import { CancelOrderDto } from './dto/cancel-order.dto';
@@ -48,6 +50,8 @@ interface PricedItem {
 const orderInclude = {
   mesa: { include: { zona: true } },
   cliente: true,
+  negocio: { select: { id: true, nombre: true } },
+  sucursal: { select: { id: true, nombre: true } },
   moneda: true,
   creadoPor: { select: { id: true, nombre: true, username: true } },
   canceladoPor: { select: { id: true, nombre: true, username: true } },
@@ -67,11 +71,14 @@ type OrderWithRelations = Prisma.PedidoGetPayload<{
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly businessDay: BusinessDayService,
     private readonly audit: AuditService,
     private readonly realtime: RealtimeService,
+    private readonly print: PrintService,
   ) {}
 
   async createOrder(dto: CreateOrderDto, current: AuthenticatedUser) {
@@ -247,6 +254,22 @@ export class OrdersService {
     });
 
     this.realtime.emitOrderUpdated(updated);
+
+    try {
+      await this.print.createJob({
+        negocioId: updated.negocioId,
+        sucursalId: updated.sucursalId,
+        pedidoId: updated.id,
+        tipo: 'comanda',
+        payload: this.auditPayload(this.mapOrder(updated)),
+      });
+    } catch (error) {
+      this.logger.error(
+        'No se pudo crear el comanda de impresión',
+        error,
+      );
+    }
+
     return this.mapOrder(updated);
   }
 
@@ -941,6 +964,8 @@ export class OrdersService {
       id: order.id,
       negocioId: order.negocioId,
       sucursalId: order.sucursalId,
+      negocio: order.negocio,
+      sucursal: order.sucursal,
       fechaOperativa: order.fechaOperativa.toISOString().slice(0, 10),
       numeroDia: order.numeroDia,
       codigoPublico: order.codigoPublico,
