@@ -12,7 +12,7 @@ node can be added in Phase 2 without a schema rewrite. See
 ## Stack
 
 - **Monorepo:** Nx 24 + pnpm 11 workspaces
-- **Frontend:** Angular 22 (standalone, signals, zoneless), Tailwind CSS 4, Angular CDK,
+- **Frontend:** Angular 22 (standalone, signals, zoneless), Tailwind CSS 4,
   `@ngrx/signals`
 - **Backend:** NestJS 11, Prisma 7.10.1, PostgreSQL 16, Redis 7 + BullMQ
 - **API docs:** Swagger / OpenAPI 3.1 at `/api/docs`
@@ -57,6 +57,9 @@ pnpm nx serve admin
 The API runs at `http://localhost:3000/api/v1` and Swagger at
 `http://localhost:3000/api/docs`.
 
+The admin app runs at `http://localhost:4200` and proxies `/api` to the API. Demo
+login: `owner` / `CafeQR123!`.
+
 ## Workspace layout
 
 ```text
@@ -70,10 +73,10 @@ apps/
   print-agent/    Node CLI for ESC/POS printing
 libs/
   shared/         Domain enums, constants, pure helpers
-  api-client/     Generated OpenAPI client
-  ui/             Design system
-  auth/           Angular auth services and guards
-  config/         Runtime configuration helpers
+  api-client/     Typed HTTP client (OpenAPI generation planned)
+  ui/             Design system (planned)
+  auth/           Angular auth services, interceptor, and guards
+  config/         Runtime configuration helpers (planned)
 prisma/           Schema, migrations, seed
 docs/             Architecture and ADRs
 odd/              Feature documents and work logs
