@@ -1,0 +1,30 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@cafeqr/prisma": ["./prisma/generated/client.ts"],
+      "@cafeqr/shared": ["./libs/shared/src/index.ts"],
+      "@cafeqr/api-client": ["./libs/api-client/src/index.ts"],
+      "@cafeqr/ui": ["./libs/ui/src/index.ts"],
+      "@cafeqr/auth": ["./libs/auth/src/index.ts"],
+      "@cafeqr/config": ["./libs/config/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp", "dist"]
+}

@@ -1,0 +1,45 @@
+{
+  email {$ACME_EMAIL:admin@cafeqr.cu}
+}
+
+{$DOMAIN:localhost} {
+  encode zstd gzip
+
+  handle /api/* {
+    reverse_proxy api:3000
+  }
+
+  handle /socket.io/* {
+    reverse_proxy api:3000
+  }
+
+  handle_path /admin/* {
+    root * /srv/admin
+    try_files {path} /index.html
+    file_server
+  }
+
+  handle_path /pos/* {
+    root * /srv/pos
+    try_files {path} /index.html
+    file_server
+  }
+
+  handle_path /kds/* {
+    root * /srv/kds
+    try_files {path} /index.html
+    file_server
+  }
+
+  handle_path /delivery/* {
+    root * /srv/delivery
+    try_files {path} /index.html
+    file_server
+  }
+
+  handle {
+    root * /srv/menu
+    try_files {path} /index.html
+    file_server
+  }
+}
