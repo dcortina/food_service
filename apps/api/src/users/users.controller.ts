@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -41,7 +42,7 @@ export class UsersController {
 
   @Get(':id')
   findOne(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.usersService.findOne(id, user);
@@ -49,7 +50,7 @@ export class UsersController {
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateUserDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

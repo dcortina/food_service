@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -51,7 +52,7 @@ export class CatalogController {
   @RequirePermissions('catalogo.gestionar')
   @Patch('categories/:id')
   updateCategory(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCategoryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -68,7 +69,7 @@ export class CatalogController {
 
   @Get('products/:id')
   findProduct(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.catalogService.findProduct(id, user);
@@ -86,7 +87,7 @@ export class CatalogController {
   @RequirePermissions('catalogo.gestionar')
   @Patch('products/:id')
   updateProduct(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateProductDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -110,7 +111,7 @@ export class CatalogController {
   @RequirePermissions('catalogo.gestionar')
   @Patch('modifier-groups/:id')
   updateModifierGroup(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateModifierGroupDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -130,7 +131,7 @@ export class CatalogController {
   @RequirePermissions('catalogo.gestionar')
   @Patch('modifiers/:id')
   updateModifier(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateModifierDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -151,7 +152,7 @@ export class CatalogController {
   @Delete('products/:id/modifier-groups/:groupId')
   unlinkModifierGroup(
     @Param('id') productId: string,
-    @Param('groupId') groupId: string,
+    @Param('groupId', ParseUUIDPipe) groupId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.catalogService.unlinkModifierGroup(

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -45,7 +46,7 @@ export class TablesController {
   @RequirePermissions('mesa.gestionar')
   @Patch('zones/:id')
   updateZone(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateZoneDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -71,7 +72,7 @@ export class TablesController {
 
   @Get(':id')
   findTable(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.tablesService.findTable(id, user);
@@ -80,7 +81,7 @@ export class TablesController {
   @RequirePermissions('mesa.gestionar')
   @Patch(':id')
   updateTable(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTableDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -90,7 +91,7 @@ export class TablesController {
   @RequirePermissions('mesa.gestionar')
   @Post(':id/regenerate-qr')
   regenerateQr(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.tablesService.regenerateQr(id, user);
@@ -98,7 +99,7 @@ export class TablesController {
 
   @Get(':id/qr')
   getQr(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.tablesService.getQr(id, user);
@@ -107,7 +108,7 @@ export class TablesController {
   @ApiProduces('image/png')
   @Get(':id/qr.png')
   async getQrPng(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
     @Res() response: Response,
   ): Promise<void> {

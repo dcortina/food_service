@@ -73,6 +73,6 @@ function parseTtlToSeconds(value: string): number {
       useClass: PermissionsGuard,
     },
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
