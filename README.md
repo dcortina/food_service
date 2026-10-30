@@ -1,5 +1,7 @@
 # CaféQR Cuba
 
+Repository: <https://github.com/dcortina/food_service>
+
 Management system for small cafés: QR table ordering, unified order board, kitchen
 display, cash control, delivery, and optional electronic payments.
 
@@ -12,7 +14,7 @@ node can be added in Phase 2 without a schema rewrite. See
 - **Monorepo:** Nx 24 + pnpm 11 workspaces
 - **Frontend:** Angular 22 (standalone, signals, zoneless), Tailwind CSS 4, Angular CDK,
   `@ngrx/signals`
-- **Backend:** NestJS 12, Prisma 7.10.1, PostgreSQL 17, Redis 7 + BullMQ
+- **Backend:** NestJS 11, Prisma 7.10.1, PostgreSQL 16, Redis 7 + BullMQ
 - **API docs:** Swagger / OpenAPI 3.1 at `/api/docs`
 - **Auth:** JWT RS256 + rotating refresh tokens + argon2id PINs
 - **Realtime:** Socket.IO

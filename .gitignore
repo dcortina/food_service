@@ -65,6 +65,9 @@ prisma/generated
 apps/api/src/generated
 prisma/*.db
 
+# local agent state
+.atl/
+
 # logs
 *.log
 
