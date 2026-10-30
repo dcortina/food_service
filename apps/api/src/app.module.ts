@@ -11,6 +11,7 @@ import { KdsModule } from './kds/kds.module';
 import { OrdersModule } from './orders/orders.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrintModule } from './print/print.module';
+import { ReportsModule } from './reports/reports.module';
 import { TablesModule } from './tables/tables.module';
 import { UsersModule } from './users/users.module';
 
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
     KdsModule,
     CashModule,
     PrintModule,
+    ReportsModule,
     HealthModule,
   ],
   controllers: [AppController],

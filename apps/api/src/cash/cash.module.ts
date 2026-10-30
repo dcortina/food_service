@@ -8,5 +8,6 @@ import { PaymentsService } from './payments.service';
 @Module({
   controllers: [CashController, PaymentsController],
   providers: [CashService, PaymentsService, BusinessDayService],
+  exports: [CashService],
 })
 export class CashModule {}
