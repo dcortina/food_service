@@ -132,8 +132,6 @@ async function main() {
         'caja.movimiento',
         'caja.retiro',
         'pago.registrar',
-        'pago.conciliar',
-        'pago.anular',
         'catalogo.ver',
         'mesa.ver',
         'reporte.ver',
@@ -175,6 +173,17 @@ async function main() {
         create: { rolId: rol.id, permisoId },
       });
     }
+
+    const allowedPermisoIds = codigos
+      .map((codigo) => permisos.get(codigo))
+      .filter((id): id is string => Boolean(id));
+
+    await prisma.rolPermiso.deleteMany({
+      where: {
+        rolId: rol.id,
+        permisoId: { notIn: allowedPermisoIds },
+      },
+    });
   }
 
   const usuarioDefs: Array<[string, string, string]> = [
