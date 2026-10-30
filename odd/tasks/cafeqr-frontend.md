@@ -78,7 +78,7 @@ proxies `/api/v1/health/live` successfully.
 - **T4** — Login, shell, routing, and placeholder pages. `S2`, `S3`. Inline. Done.
 - **T5** — Dashboard store, page, and report visualizations. `S4`. Inline. Done.
 - **T6** — Build, smoke test, and fix. `S1`–`S5`. Inline. Done.
-- **T7** — Work-unit commit. `S1`–`S5`. Inline. In progress.
+- **T7** — Work-unit commit. `S1`–`S5`. Inline. Done.
 
 ## Log
 
@@ -109,3 +109,10 @@ and delivery can share the same session and HTTP behavior.
 Note: the local environment defines `PORT=3000`, so the admin dev server must be
 started with `pnpm nx serve admin --port 4200` (or `PORT=4200`) to avoid a port
 collision with the API.
+
+### L4 — Work-unit commit
+
+The frontend foundation and dashboard are committed as `f4e4adb`
+(`feat(admin): add frontend foundation and dashboard`) on
+`feat/frontend-foundation`. The branch is intentionally not merged or pushed yet;
+the user reviews the admin app first.
