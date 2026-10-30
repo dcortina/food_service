@@ -68,6 +68,9 @@ prisma/*.db
 # local agent state
 .atl/
 
+# secrets
+.secrets/
+
 # logs
 *.log
 
