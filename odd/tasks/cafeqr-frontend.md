@@ -166,3 +166,17 @@ add a protected settings API plus a public branding endpoint, and make the
 frontend branding reactive through a root `BrandingService`. The visual refresh
 uses a tomato/mustard/cream/charcoal palette, a burger mark, and a dark sidebar
 to evoke a fast-casual burger restaurant.
+
+### L6 — Verification
+
+- `pnpm nx build api` passes; the API was restarted from `dist`.
+- `PATCH /api/v1/settings/business` updates the name and logo; the public
+  branding and the login response reflect both changes.
+- `GET /api/v1/settings/business` is protected: the owner receives `200` and the
+  cashier receives `403`.
+- `pnpm nx build admin` passes: about 304 kB initial and 79 kB transfer.
+- The dev proxy serves `/api/v1/public/branding` and the settings endpoint.
+- No browser was available in this environment, so the UI was verified through
+  the production build and HTTP contracts, not a click-through.
+
+Commit: `fdca83a` (`feat(admin): add dynamic branding and food-service theme`).
