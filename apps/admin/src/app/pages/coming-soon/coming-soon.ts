@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="mx-auto max-w-2xl py-6">
       <div
-        class="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm sm:p-12"
+        class="rounded-3xl border border-dashed border-stone-300 bg-white p-8 text-center shadow-sm sm:p-12"
       >
         <div
           class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-600"
@@ -26,16 +26,16 @@ import { RouterLink } from '@angular/router';
             <circle cx="12" cy="12" r="9" />
           </svg>
         </div>
-        <h1 class="mt-5 text-xl font-semibold tracking-tight text-slate-900">
+        <h1 class="mt-5 text-xl font-bold tracking-tight text-charcoal">
           {{ title() }}
         </h1>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-500">
           Este módulo está en construcción. La base de navegación, sesión y
           consumo de API ya está lista para conectarlo.
         </p>
         <a
           routerLink="/dashboard"
-          class="mt-6 inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+          class="mt-6 inline-flex items-center justify-center rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700"
         >
           Volver al dashboard
         </a>

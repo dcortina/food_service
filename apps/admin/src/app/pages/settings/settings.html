@@ -1,0 +1,271 @@
+<div class="flex flex-col gap-2">
+  <p class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600">
+    Configuración
+  </p>
+  <h1 class="text-3xl font-black tracking-tight text-charcoal">
+    Identidad del negocio
+  </h1>
+  <p class="text-sm text-stone-500">
+    Cambie el nombre y el logo que se muestran en el panel y en el inicio de
+    sesión.
+  </p>
+</div>
+
+@if (!canManage()) {
+  <div
+    class="mt-6 rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm"
+  >
+    <div
+      class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-600"
+    >
+      <svg
+        class="h-7 w-7"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path
+          d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75M6.75 21h10.5a2.25 2.25 0 002.25-2.25V10.5H4.5v8.25A2.25 2.25 0 006.75 21z"
+        />
+      </svg>
+    </div>
+    <h2 class="mt-4 text-lg font-bold text-charcoal">Acceso restringido</h2>
+    <p class="mx-auto mt-2 max-w-md text-sm text-stone-500">
+      Su usuario no tiene el permiso <code>configuracion.gestionar</code>. Pida
+      al dueño del negocio que le habilite el acceso.
+    </p>
+  </div>
+} @else if (loading()) {
+  <div class="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <div
+      class="h-96 animate-pulse rounded-3xl border border-stone-200 bg-white"
+    ></div>
+    <div
+      class="h-96 animate-pulse rounded-3xl border border-stone-200 bg-white"
+    ></div>
+  </div>
+} @else {
+  <div class="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+    <section
+      class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+    >
+      <div>
+        <h2 class="text-lg font-bold text-charcoal">Datos de la marca</h2>
+        <p class="mt-1 text-sm text-stone-500">
+          El nombre se usa en el panel, el login y el título de la pestaña.
+        </p>
+      </div>
+
+      <form class="mt-6 space-y-6" [formGroup]="form" (ngSubmit)="save()">
+        <div>
+          <label
+            for="nombre"
+            class="block text-sm font-semibold text-stone-700"
+            >Nombre del negocio</label
+          >
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            maxlength="120"
+            placeholder="Burger Lab"
+            (input)="syncPreview()"
+            class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none transition placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          />
+          @if (
+            form.controls.nombre.touched &&
+            form.controls.nombre.hasError('required')
+          ) {
+            <p class="mt-1.5 text-xs text-brand-700">
+              El nombre es obligatorio.
+            </p>
+          }
+          @if (
+            form.controls.nombre.touched &&
+            form.controls.nombre.hasError('minlength')
+          ) {
+            <p class="mt-1.5 text-xs text-brand-700">
+              El nombre debe tener al menos 2 caracteres.
+            </p>
+          }
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between gap-3">
+            <label
+              for="logoUrl"
+              class="block text-sm font-semibold text-stone-700"
+              >Logo</label
+            >
+            @if (previewLogo()) {
+              <button
+                type="button"
+                (click)="removeLogo()"
+                class="text-xs font-bold text-brand-600 transition hover:text-brand-700"
+              >
+                Quitar logo
+              </button>
+            }
+          </div>
+
+          <div class="mt-2 flex items-start gap-3">
+            <app-brand-mark
+              [name]="previewName()"
+              [logoUrl]="previewLogo()"
+              size="lg"
+            />
+            <div class="min-w-0 flex-1">
+              <input
+                id="logoUrl"
+                type="text"
+                formControlName="logoUrl"
+                placeholder="https://mi-negocio.com/logo.png"
+                (input)="syncPreview()"
+                class="block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none transition placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              />
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <label
+                  class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-bold text-stone-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 16.5V18a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-1.5M16.5 7.5L12 3m0 0L7.5 7.5M12 3v13.5"
+                    />
+                  </svg>
+                  Subir imagen
+                  <input
+                    type="file"
+                    accept="image/*"
+                    class="sr-only"
+                    (change)="onLogoSelected($event)"
+                  />
+                </label>
+                <span class="text-[11px] text-stone-400">
+                  URL pública o imagen de hasta 48 KB.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          @if (logoError()) {
+            <p class="mt-2 text-xs text-brand-700">{{ logoError() }}</p>
+          }
+        </div>
+
+        @if (error()) {
+          <div
+            class="rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700"
+            role="alert"
+          >
+            {{ error() }}
+          </div>
+        }
+
+        @if (success()) {
+          <div
+            class="rounded-2xl border border-lettuce/20 bg-lettuce/10 px-3.5 py-2.5 text-sm font-medium text-lettuce"
+            role="status"
+          >
+            {{ success() }}
+          </div>
+        }
+
+        <button
+          type="submit"
+          [disabled]="saving()"
+          class="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          @if (saving()) {
+            <span
+              class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+            ></span>
+            Guardando...
+          } @else {
+            Guardar cambios
+          }
+        </button>
+      </form>
+    </section>
+
+    <aside class="space-y-6">
+      <section class="relative overflow-hidden rounded-3xl bg-charcoal p-6 text-white shadow-xl shadow-stone-900/10">
+        <div class="pointer-events-none absolute inset-0 bg-dots opacity-10"></div>
+        <div class="relative">
+          <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-mustard-300">
+            Vista previa
+          </p>
+          <div class="mt-5 flex items-center gap-4">
+            <app-brand-mark
+              [name]="previewName()"
+              [logoUrl]="previewLogo()"
+              size="xl"
+            />
+            <div class="min-w-0">
+              <p class="truncate text-2xl font-black tracking-tight text-white">
+                {{ previewName() || 'CaféQR' }}
+              </p>
+              <p class="text-sm text-stone-400">Administración</p>
+            </div>
+          </div>
+
+          <div class="mt-6 rounded-2xl bg-white/5 p-4">
+            <div class="flex items-center gap-3">
+              <app-brand-mark
+                [name]="previewName()"
+                [logoUrl]="previewLogo()"
+                size="sm"
+              />
+              <div class="min-w-0">
+                <p class="truncate text-sm font-bold text-white">
+                  {{ previewName() || 'CaféQR' }}
+                </p>
+                <p class="text-[11px] text-stone-400">Panel administrativo</p>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span
+                class="rounded-lg bg-mustard-400 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-charcoal"
+                >Dashboard</span
+              >
+              <span
+                class="rounded-lg bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-stone-300"
+                >Pedidos</span
+              >
+              <span
+                class="rounded-lg bg-white/5 px-2.5 py-1 text-[10px] font-semibold text-stone-300"
+                >Caja</span
+              >
+            </div>
+          </div>
+
+          <p class="mt-5 text-xs leading-relaxed text-stone-400">
+            El logo se muestra en el sidebar, el login y la configuración. Si no
+            carga un logo, se usa la marca de hamburguesa por defecto.
+          </p>
+        </div>
+      </section>
+
+      <section class="rounded-3xl border border-mustard-200 bg-mustard-50 p-5">
+        <p class="text-sm font-bold text-mustard-900">Consejo</p>
+        <p class="mt-1 text-sm leading-relaxed text-mustard-800">
+          Use un logo cuadrado o con fondo transparente para que se vea bien en
+          todos los tamaños. Los cambios se aplican al instante en este
+          dispositivo y en el próximo inicio de sesión.
+        </p>
+      </section>
+    </aside>
+  </div>
+}

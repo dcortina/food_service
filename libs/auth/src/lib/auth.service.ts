@@ -77,6 +77,22 @@ export class AuthService {
     return this.userState()?.permisos.includes(permission) ?? false;
   }
 
+  updateBusinessBranding(nombre: string, logoUrl: string | null): void {
+    const user = this.userState();
+
+    if (!user) {
+      return;
+    }
+
+    const updated: AuthUser = {
+      ...user,
+      negocio: { ...user.negocio, nombre, logoUrl },
+    };
+
+    this.userState.set(updated);
+    localStorage.setItem(USER_KEY, JSON.stringify(updated));
+  }
+
   private setSession(response: LoginResponse): void {
     localStorage.setItem(ACCESS_KEY, response.accessToken);
     localStorage.setItem(REFRESH_KEY, response.refreshToken);

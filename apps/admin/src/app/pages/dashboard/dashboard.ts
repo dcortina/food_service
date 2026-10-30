@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '@cafeqr/auth';
 import {
   CANAL_PEDIDO_LABELS,
   ESTADO_CUMPLIMIENTO_LABELS,
@@ -19,9 +20,22 @@ import { DashboardStore } from './dashboard.store';
 })
 export class DashboardPage implements OnInit {
   readonly store = inject(DashboardStore);
+  private readonly auth = inject(AuthService);
 
   desde = this.store.desde();
   hasta = this.store.hasta();
+
+  readonly greeting = computed(() => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) return 'Buenos días';
+    if (hour < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  });
+
+  readonly firstName = computed(
+    () => this.auth.user()?.nombre.split(/\s+/)[0] ?? '',
+  );
 
   readonly maxChannel = computed(() =>
     Math.max(
@@ -140,26 +154,26 @@ export class DashboardPage implements OnInit {
   statusClass(estado: string): string {
     const base = 'inline-flex rounded-full px-2 py-0.5 text-xs font-medium ';
     const variants: Record<string, string> = {
-      nuevo: 'bg-slate-100 text-slate-600',
-      confirmado: 'bg-sky-50 text-sky-700',
-      en_preparacion: 'bg-amber-50 text-amber-700',
-      listo: 'bg-emerald-50 text-emerald-700',
-      entregado: 'bg-slate-100 text-slate-500',
-      cancelado: 'bg-rose-50 text-rose-700',
+      nuevo: 'bg-stone-100 text-stone-600',
+      confirmado: 'bg-mustard-100 text-mustard-800',
+      en_preparacion: 'bg-mustard-100 text-mustard-800',
+      listo: 'bg-lettuce/10 text-lettuce',
+      entregado: 'bg-stone-100 text-stone-500',
+      cancelado: 'bg-brand-50 text-brand-700',
     };
 
-    return base + (variants[estado] ?? 'bg-slate-100 text-slate-600');
+    return base + (variants[estado] ?? 'bg-stone-100 text-stone-600');
   }
 
   paymentClass(estado: string): string {
     const base = 'inline-flex rounded-full px-2 py-0.5 text-xs font-medium ';
     const variants: Record<string, string> = {
-      pendiente: 'bg-amber-50 text-amber-700',
-      parcial: 'bg-sky-50 text-sky-700',
-      pagado: 'bg-emerald-50 text-emerald-700',
-      reembolsado: 'bg-rose-50 text-rose-700',
+      pendiente: 'bg-mustard-100 text-mustard-800',
+      parcial: 'bg-brand-50 text-brand-700',
+      pagado: 'bg-lettuce/10 text-lettuce',
+      reembolsado: 'bg-stone-100 text-stone-600',
     };
 
-    return base + (variants[estado] ?? 'bg-slate-100 text-slate-600');
+    return base + (variants[estado] ?? 'bg-stone-100 text-stone-600');
   }
 }

@@ -12,6 +12,7 @@ import { OrdersModule } from './orders/orders.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrintModule } from './print/print.module';
 import { ReportsModule } from './reports/reports.module';
+import { SettingsModule } from './settings/settings.module';
 import { TablesModule } from './tables/tables.module';
 import { UsersModule } from './users/users.module';
 
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     CashModule,
     PrintModule,
     ReportsModule,
+    SettingsModule,
     HealthModule,
   ],
   controllers: [AppController],

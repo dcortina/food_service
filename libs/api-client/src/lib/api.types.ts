@@ -7,7 +7,7 @@ export interface AuthUser {
   telefono: string | null;
   rol: string;
   permisos: string[];
-  negocio: { id: string; nombre: string };
+  negocio: { id: string; nombre: string; logoUrl: string | null };
   sucursal: { id: string; nombre: string } | null;
 }
 
@@ -16,6 +16,27 @@ export interface LoginResponse {
   refreshToken: string;
   expiresIn: number;
   user: AuthUser;
+}
+
+export interface PublicBranding {
+  nombre: string;
+  logoUrl: string | null;
+}
+
+export interface BusinessSettings extends PublicBranding {
+  id: string;
+  direccion: string | null;
+  telefono: string | null;
+  whatsappNumero: string | null;
+  email: string | null;
+  impuestoPorcentaje: string;
+  corteDiaHora: string;
+  zonaHoraria: string;
+}
+
+export interface UpdateBusinessPayload {
+  nombre?: string;
+  logoUrl?: string | null;
 }
 
 export interface DashboardResponse {

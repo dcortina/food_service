@@ -360,6 +360,7 @@ export class AuthService {
       negocio: {
         id: usuario.negocio.id,
         nombre: usuario.negocio.nombre,
+        logoUrl: usuario.negocio.logoUrl ?? null,
       },
       sucursal: sucursal
         ? { id: sucursal.id, nombre: sucursal.nombre }

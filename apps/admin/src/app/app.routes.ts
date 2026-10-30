@@ -31,7 +31,11 @@ export const appRoutes: Routes = [
       { path: 'payments', ...comingSoon('Pagos') },
       { path: 'users', ...comingSoon('Usuarios y roles') },
       { path: 'reports', ...comingSoon('Reportes') },
-      { path: 'settings', ...comingSoon('Configuración') },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/settings/settings').then((m) => m.SettingsPage),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

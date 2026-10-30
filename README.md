@@ -60,6 +60,10 @@ The API runs at `http://localhost:3000/api/v1` and Swagger at
 The admin app runs at `http://localhost:4200` and proxies `/api` to the API. Demo
 login: `owner` / `CafeQR123!`.
 
+The business name and logo are managed in **Administración → Configuración**. The
+login page reads the public branding from `/api/v1/public/branding`, so the same
+identity is shown before authentication.
+
 ## Workspace layout
 
 ```text

@@ -1,17 +1,24 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@cafeqr/auth';
+import { BrandingService } from '../../core/branding.service';
+import { BrandMark } from '../../shared/brand-mark';
+import { BurgerHero } from '../../shared/burger-hero';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, BrandMark, BurgerHero],
   templateUrl: './login.html',
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+
+  readonly branding = inject(BrandingService);
+  readonly features = ['Pedidos', 'Cocina', 'Caja', 'Reportes'];
+  readonly currentYear = new Date().getFullYear();
 
   readonly form = this.fb.nonNullable.group({
     username: ['', [Validators.required]],
@@ -21,16 +28,14 @@ export class LoginPage {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
 
-  readonly highlights = [
-    'Pedidos y KDS en tiempo real',
-    'Caja con arqueo ciego y conciliación',
-    'Reportes de ventas y exportación CSV',
-  ];
-
   constructor() {
     if (this.auth.hasSession()) {
       void this.router.navigate(['/dashboard']);
     }
+  }
+
+  ngOnInit(): void {
+    this.branding.loadPublic();
   }
 
   submit(): void {

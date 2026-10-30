@@ -14,6 +14,7 @@ export const PERMISSIONS = {
   CATALOGO_VER: 'catalogo.ver',
   CATALOGO_GESTIONAR: 'catalogo.gestionar',
   MESA_GESTIONAR: 'mesa.gestionar',
+  MESA_VER: 'mesa.ver',
   USUARIO_GESTIONAR: 'usuario.gestionar',
   REPORTE_VER: 'reporte.ver',
   REPORTE_EXPORTAR: 'reporte.exportar',

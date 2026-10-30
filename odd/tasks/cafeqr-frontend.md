@@ -70,6 +70,36 @@ without crashing.
 **Acceptance:** `pnpm nx build admin` passes and `curl` against the dev server
 proxies `/api/v1/health/live` successfully.
 
+### S6 — Dynamic business branding
+
+- `GET /api/v1/public/branding` returns the active business name and logo for
+  the pre-authentication login screen.
+- `GET /api/v1/settings/business` and `PATCH /api/v1/settings/business` allow a
+  user with `configuracion.gestionar` to read and update the business name and
+  logo.
+- The login response includes `negocio.logoUrl`.
+- The admin settings page edits the name and logo (public URL or an image up to
+  48 KB), previews the result, and applies it immediately to the sidebar, login,
+  and browser tab title.
+- The logo falls back to a burger mark when unset.
+- Settings changes are audited.
+
+**Acceptance:** changing the name/logo in Configuración updates the public
+branding, the authenticated shell, and the login page; a user without the
+permission sees a restricted state and receives `403` from the API.
+
+### S7 — Food-service visual refresh
+
+- Warm fast-food palette: tomato red, mustard, cream, charcoal, lettuce.
+- Cream dotted background, dark charcoal sidebar, bold display typography,
+  rounded cards, and a burger illustration on the login screen.
+- Dashboard, login, shell, settings, and placeholder pages share the same visual
+  language.
+- Text remains readable and the layout remains responsive.
+
+**Acceptance:** the admin app feels like a modern fast-casual ordering product,
+not a generic dashboard, without sacrificing clarity or accessibility.
+
 ## Tasks
 
 - **T1** — Shared API client library. `S1`. Inline. Done.
@@ -79,6 +109,11 @@ proxies `/api/v1/health/live` successfully.
 - **T5** — Dashboard store, page, and report visualizations. `S4`. Inline. Done.
 - **T6** — Build, smoke test, and fix. `S1`–`S5`. Inline. Done.
 - **T7** — Work-unit commit. `S1`–`S5`. Inline. Done.
+- **T8** — Settings/branding API and auth logo payload. `S6`. Inline. Done.
+- **T9** — Branding service, dynamic login/shell/tab title. `S6`. Inline. Done.
+- **T10** — Settings page with name, URL, upload, and preview. `S6`. Inline. Done.
+- **T11** — Food-service visual refresh. `S7`. Inline. Done.
+- **T12** — Build, API smoke test, and commit. `S6`, `S7`. Inline. Done.
 
 ## Log
 
@@ -116,3 +151,18 @@ The frontend foundation and dashboard are committed as `f4e4adb`
 (`feat(admin): add frontend foundation and dashboard`) on
 `feat/frontend-foundation`. The branch is intentionally not merged or pushed yet;
 the user reviews the admin app first.
+
+### L5 — User feedback: dynamic brand and food-service theme
+
+"tengo algunos puntos que quiero tocar en el fronted. 1 El nombre todavia esta
+sujeto a cambios por lo que seria bueno que sea dinamico poder establecerlo en la
+configuracion al igual que el logo. 2 EN cuanto a la tematica o diseño me
+gustaria que fuera un diseño fresco ambientado principalmente al sector de la
+comida, servicio de pedidos comida rapida hambuergeseria algo asi. Lo dejo a tu
+imaginacion."
+
+Decision: keep the existing `Negocio.nombre`/`logoUrl` columns (no migration),
+add a protected settings API plus a public branding endpoint, and make the
+frontend branding reactive through a root `BrandingService`. The visual refresh
+uses a tomato/mustard/cream/charcoal palette, a burger mark, and a dark sidebar
+to evoke a fast-casual burger restaurant.

@@ -1,103 +1,114 @@
 <div class="grid min-h-screen lg:grid-cols-2">
   <section
-    class="relative hidden overflow-hidden bg-gradient-to-br from-stone-950 via-stone-900 to-orange-950 p-12 lg:flex lg:flex-col lg:justify-between"
+    class="login-hero-bg relative hidden overflow-hidden p-12 lg:flex lg:flex-col lg:justify-between"
   >
-    <div
-      class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl"
-    ></div>
-    <div
-      class="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-amber-400/10 blur-3xl"
-    ></div>
+    <div class="pointer-events-none absolute inset-0 bg-dots opacity-20"></div>
 
     <div class="relative">
       <div class="flex items-center gap-3">
-        <div
-          class="grid h-11 w-11 place-items-center rounded-2xl bg-brand-500 text-lg font-bold text-white shadow-lg shadow-brand-500/30"
-        >
-          CQ
-        </div>
+        <app-brand-mark
+          [name]="branding.name()"
+          [logoUrl]="branding.logoUrl()"
+          size="md"
+        />
         <div>
-          <p class="text-lg font-semibold tracking-tight text-white">CaféQR</p>
-          <p class="text-xs text-stone-400">Administración</p>
+          <p class="text-lg font-extrabold tracking-tight text-white">
+            {{ branding.name() }}
+          </p>
+          <p
+            class="text-[11px] uppercase tracking-[0.2em] text-mustard-300"
+          >
+            Administración
+          </p>
         </div>
       </div>
 
-      <div class="mt-20 max-w-md">
-        <p
-          class="text-sm font-semibold uppercase tracking-[0.2em] text-brand-400"
+      <div class="mt-14 max-w-lg">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-mustard-400/30 bg-mustard-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-mustard-200"
         >
-          Operación sin fricción
-        </p>
+          <span class="h-1.5 w-1.5 rounded-full bg-mustard-300"></span>
+          Fast food · Pedidos · Operación
+        </div>
+
         <h1
-          class="mt-4 text-4xl font-semibold leading-tight tracking-tight text-white"
+          class="mt-5 text-5xl font-black leading-[1.02] tracking-tight text-white"
         >
-          La operación de tu cafetería, en orden.
+          Comida rica.<br />
+          <span class="text-mustard-300">Servicio impecable.</span>
         </h1>
-        <p class="mt-4 text-base leading-relaxed text-stone-300">
-          Pedidos, caja, catálogo y reportes en un solo lugar. Diseñado para
-          funcionar incluso cuando la conexión no ayuda.
+        <p class="mt-5 max-w-md text-base leading-relaxed text-stone-300">
+          Pedidos, cocina y caja en un solo lugar. Rápido, claro y sin fricción,
+          incluso cuando el día se pone intenso.
         </p>
+
+        <div class="mt-7 flex flex-wrap gap-2">
+          @for (feature of features; track feature) {
+            <span
+              class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-stone-200"
+              >{{ feature }}</span
+            >
+          }
+        </div>
       </div>
 
-      <ul class="mt-10 space-y-4">
-        @for (item of highlights; track item) {
-          <li class="flex items-start gap-3 text-sm text-stone-300">
-            <span
-              class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-500/15 text-brand-400"
-            >
-              <svg
-                class="h-3 w-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M16.704 5.29a1 1 0 010 1.415l-7.5 7.5a1 1 0 01-1.415 0l-3.5-3.5a1 1 0 111.415-1.415L8.5 12.086l6.793-6.793a1 1 0 011.414 0z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </span>
-            {{ item }}
-          </li>
-        }
-      </ul>
+      <div class="relative mt-10 flex items-end justify-between gap-6">
+        <app-burger-hero class="max-w-[22rem]" />
+        <div
+          class="mb-6 rotate-3 rounded-2xl bg-mustard-400 px-4 py-3 text-center shadow-xl shadow-black/20"
+        >
+          <p
+            class="text-[10px] font-black uppercase tracking-[0.18em] text-charcoal"
+          >
+            Hot &amp; fresh
+          </p>
+          <p class="mt-0.5 text-xs font-semibold text-charcoal/70">
+            Hecho en casa
+          </p>
+        </div>
+      </div>
     </div>
 
-    <p class="relative text-xs text-stone-500">
-      CaféQR Cuba · Gestión para cafeterías y paladares
+    <p class="relative mt-8 text-xs text-stone-500">
+      © {{ currentYear }} {{ branding.name() }} · Gestión para food service
     </p>
   </section>
 
   <section
-    class="flex items-center justify-center bg-slate-50 px-4 py-12 sm:px-8"
+    class="flex items-center justify-center bg-cream bg-dots px-4 py-12 sm:px-8"
   >
     <div class="w-full max-w-md">
       <div class="mb-8 flex items-center gap-3 lg:hidden">
-        <div
-          class="grid h-10 w-10 place-items-center rounded-xl bg-brand-600 text-sm font-bold text-white shadow-sm"
-        >
-          CQ
-        </div>
+        <app-brand-mark
+          [name]="branding.name()"
+          [logoUrl]="branding.logoUrl()"
+          size="md"
+        />
         <div>
-          <p class="text-base font-semibold tracking-tight text-slate-900">
-            CaféQR
+          <p class="text-base font-extrabold tracking-tight text-charcoal">
+            {{ branding.name() }}
           </p>
-          <p class="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+          <p class="text-[11px] uppercase tracking-[0.16em] text-stone-400">
             Administración
           </p>
         </div>
       </div>
 
       <div
-        class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/60 sm:p-8"
+        class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-2xl shadow-stone-900/5 sm:p-8"
       >
         <div>
-          <p class="text-sm font-medium text-brand-600">Bienvenido de vuelta</p>
-          <h2 class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+          <p
+            class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600"
+          >
+            Bienvenido de vuelta
+          </p>
+          <h2
+            class="mt-2 text-3xl font-extrabold tracking-tight text-charcoal"
+          >
             Iniciar sesión
           </h2>
-          <p class="mt-2 text-sm text-slate-500">
+          <p class="mt-2 text-sm text-stone-500">
             Acceda con su usuario para administrar el negocio.
           </p>
         </div>
@@ -111,7 +122,7 @@
           <div>
             <label
               for="username"
-              class="block text-sm font-medium text-slate-700"
+              class="block text-sm font-semibold text-stone-700"
               >Usuario</label
             >
             <input
@@ -120,13 +131,13 @@
               formControlName="username"
               autocomplete="username"
               placeholder="owner"
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none transition placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
             />
             @if (
               form.controls.username.touched &&
               form.controls.username.hasError('required')
             ) {
-              <p class="mt-1.5 text-xs text-rose-600">
+              <p class="mt-1.5 text-xs text-brand-700">
                 El usuario es obligatorio.
               </p>
             }
@@ -135,7 +146,7 @@
           <div>
             <label
               for="password"
-              class="block text-sm font-medium text-slate-700"
+              class="block text-sm font-semibold text-stone-700"
               >Contraseña</label
             >
             <input
@@ -144,13 +155,13 @@
               formControlName="password"
               autocomplete="current-password"
               placeholder="••••••••"
-              class="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none transition placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
             />
             @if (
               form.controls.password.touched &&
               form.controls.password.hasError('required')
             ) {
-              <p class="mt-1.5 text-xs text-rose-600">
+              <p class="mt-1.5 text-xs text-brand-700">
                 La contraseña es obligatoria.
               </p>
             }
@@ -158,7 +169,7 @@
 
           @if (error()) {
             <div
-              class="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700"
+              class="rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700"
               role="alert"
             >
               {{ error() }}
@@ -168,7 +179,7 @@
           <button
             type="submit"
             [disabled]="loading()"
-            class="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+            class="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 focus:outline-none focus:ring-4 focus:ring-brand-500/20 disabled:cursor-not-allowed disabled:opacity-60"
           >
             @if (loading()) {
               <span
@@ -182,22 +193,22 @@
         </form>
 
         <div
-          class="mt-6 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3.5"
+          class="mt-6 rounded-2xl border border-dashed border-mustard-300 bg-mustard-50 p-3.5"
         >
           <p
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+            class="text-[11px] font-bold uppercase tracking-[0.16em] text-mustard-800"
           >
             Credenciales de demostración
           </p>
-          <p class="mt-1 text-sm text-slate-600">
-            <span class="font-medium text-slate-900">owner</span> /
-            <span class="font-medium text-slate-900">CafeQR123!</span>
+          <p class="mt-1 text-sm text-stone-600">
+            <span class="font-semibold text-charcoal">owner</span> /
+            <span class="font-semibold text-charcoal">CafeQR123!</span>
           </p>
         </div>
       </div>
 
-      <p class="mt-6 text-center text-xs text-slate-400">
-        CaféQR Cuba · v0.1.0
+      <p class="mt-6 text-center text-xs text-stone-400">
+        © {{ currentYear }} {{ branding.name() }}
       </p>
     </div>
   </section>
