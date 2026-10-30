@@ -83,6 +83,7 @@ async function main() {
     ['catalogo.ver', 'Ver catálogo'],
     ['catalogo.gestionar', 'Gestionar catálogo'],
     ['mesa.gestionar', 'Gestionar mesas y QR'],
+    ['mesa.ver', 'Ver mesas y zonas'],
     ['usuario.gestionar', 'Gestionar usuarios y roles'],
     ['reporte.ver', 'Ver reportes'],
     ['reporte.exportar', 'Exportar reportes'],
@@ -134,6 +135,7 @@ async function main() {
         'pago.conciliar',
         'pago.anular',
         'catalogo.ver',
+        'mesa.ver',
         'reporte.ver',
         'kds.ver',
       ],
@@ -141,7 +143,7 @@ async function main() {
     [
       'mesero',
       'Mesero',
-      ['pedido.ver', 'pedido.crear', 'catalogo.ver', 'kds.ver'],
+      ['pedido.ver', 'pedido.crear', 'catalogo.ver', 'mesa.ver', 'kds.ver'],
     ],
     [
       'cocina',
