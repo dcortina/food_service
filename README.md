@@ -58,15 +58,21 @@ pnpm nx serve pos --port 4201
 
 # Kitchen display (port 4202)
 pnpm nx serve kds --port 4202
+
+# Customer menu PWA (port 4203)
+pnpm nx serve menu --port 4203
 ```
 
 The API runs at `http://localhost:3000/api/v1` and Swagger at
 `http://localhost:3000/api/docs`.
 
 The admin app runs at `http://localhost:4200`, the cashier POS at
-`http://localhost:4201`, and the kitchen display at `http://localhost:4202`; all
-proxy `/api` to the API. Demo logins: `owner` / `CafeQR123!` for the admin,
-`cajero` / `CafeQR123!` for the POS, and `cocina` / `CafeQR123!` for the KDS.
+`http://localhost:4201`, the kitchen display at `http://localhost:4202`, and the
+customer menu at `http://localhost:4203`; all proxy `/api` to the API. Demo
+logins: `owner` / `CafeQR123!` for the admin, `cajero` / `CafeQR123!` for the
+POS, and `cocina` / `CafeQR123!` for the KDS. The menu is public and opens from a
+table QR URL such as
+`http://localhost:4203/qr/6d6d75d3-3854-4038-a61f-cc5351ec13fb` (seeded Mesa 1).
 
 The business name and logo are managed in **Administración → Configuración**. The
 login page reads the public branding from `/api/v1/public/branding`, so the same

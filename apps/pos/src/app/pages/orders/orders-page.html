@@ -111,7 +111,16 @@
           <p class="truncate text-xs text-stone-400">
             {{ order.clienteNombre || 'Cliente sin nombre' }}
           </p>
-          @if (order.estadoPago !== 'pagado') {
+          @if (order.estadoCumplimiento === 'nuevo' && canConfirm()) {
+            <button
+              type="button"
+              (click)="confirmOrder(order)"
+              [disabled]="isConfirming(order.id)"
+              class="shrink-0 rounded-xl bg-mustard-400 px-3 py-2 text-xs font-bold text-charcoal shadow-sm transition hover:bg-mustard-300 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {{ isConfirming(order.id) ? 'Confirmando...' : 'Confirmar' }}
+            </button>
+          } @else if (order.estadoPago !== 'pagado') {
             <button
               type="button"
               (click)="openPayment(order)"

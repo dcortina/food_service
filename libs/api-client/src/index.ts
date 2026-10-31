@@ -5,6 +5,8 @@ export * from './lib/catalog.api';
 export * from './lib/kds.api';
 export * from './lib/orders.api';
 export * from './lib/payments.api';
+export * from './lib/public-menu.api';
+export * from './lib/public-orders.api';
 export * from './lib/reports.api';
 export * from './lib/settings.api';
 export * from './lib/tables.api';

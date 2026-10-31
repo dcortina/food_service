@@ -5,9 +5,11 @@ import {
   OrdersApi,
   Payment,
 } from '@cafeqr/api-client';
+import { AuthService } from '@cafeqr/auth';
 import {
   CANAL_PEDIDO_LABELS,
   ESTADO_CUMPLIMIENTO_LABELS,
+  PERMISSIONS,
   CanalPedido,
   EstadoCumplimiento,
 } from '@cafeqr/shared';
@@ -22,12 +24,18 @@ type OrderFilter = 'active' | 'all';
 })
 export class OrdersPage implements OnInit {
   private readonly ordersApi = inject(OrdersApi);
+  private readonly auth = inject(AuthService);
+
+  readonly canConfirm = computed(() =>
+    this.auth.hasPermission(PERMISSIONS.PEDIDO_CREAR),
+  );
 
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly filter = signal<OrderFilter>('active');
   readonly paymentOrder = signal<Order | null>(null);
+  readonly confirming = signal<Set<string>>(new Set());
 
   readonly activeStates = ['nuevo', 'confirmado', 'en_preparacion', 'listo'];
 
@@ -83,6 +91,41 @@ export class OrdersPage implements OnInit {
 
   openPayment(order: Order): void {
     this.paymentOrder.set(order);
+  }
+
+  confirmOrder(order: Order): void {
+    if (this.confirming().has(order.id)) {
+      return;
+    }
+
+    this.confirming.update((current) => new Set(current).add(order.id));
+
+    this.ordersApi.confirm(order.id).subscribe({
+      next: (updated) => {
+        this.orders.update((orders) =>
+          orders.map((current) =>
+            current.id === updated.id ? updated : current,
+          ),
+        );
+        this.confirming.update((current) => {
+          const next = new Set(current);
+          next.delete(order.id);
+          return next;
+        });
+      },
+      error: () => {
+        this.confirming.update((current) => {
+          const next = new Set(current);
+          next.delete(order.id);
+          return next;
+        });
+        this.error.set('No se pudo confirmar el pedido.');
+      },
+    });
+  }
+
+  isConfirming(orderId: string): boolean {
+    return this.confirming().has(orderId);
   }
 
   onPaid(payment: Payment): void {
