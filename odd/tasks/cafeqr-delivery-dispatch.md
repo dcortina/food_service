@@ -59,7 +59,7 @@ the delivery app.
 - **T2** — Admin Repartidores page and nav. `S2`. Done.
 - **T3** — POS assignment dialog and cashier permission. `S3`. Done.
 - **T4** — Build and smoke test. `S4`. Done.
-- **T5** — Commit. `S1`–`S4`. In progress.
+- **T5** — Commit. `S1`–`S4`. Done.
 
 ## Log
 
@@ -93,4 +93,4 @@ Continue with the remaining UI for delivery dispatch and liquidation.
 - Test data: order `#004` remains active and ready for the delivery app; pending
   liquidation of 123.00 remains for the admin page.
 
-Commit: pending.
+Commit: `08644c8` (`feat(delivery): add dispatch and liquidation UI`).
