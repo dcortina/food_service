@@ -90,7 +90,7 @@ beep; the order is not alerted repeatedly.
 - **T6** — QR print/PDF window. `S6`. Done.
 - **T7** — Menu service worker. `S7`. Done.
 - **T8** — Builds and HTTP verification. Done.
-- **T9** — Commit. In progress.
+- **T9** — Commit. Done.
 
 ## Log
 
@@ -126,4 +126,4 @@ Close the secondary gaps listed before the final end-to-end test.
   worker runtime behavior were not visually verified.
 - Physical thermal-printer validation remains an on-site task.
 
-Commit: pending.
+Commit: `83970ef` (`feat(frontend): add split payments and operational polish`).
