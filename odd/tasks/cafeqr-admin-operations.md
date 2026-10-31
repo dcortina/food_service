@@ -78,7 +78,7 @@ the old code.
 - **T5** — Users page, roles/branches API, and client. `S5`. Done.
 - **T6** — Modifier group creation in catalog. `S6`. Done.
 - **T7** — Build and HTTP verification. Done.
-- **T8** — Commit. In progress.
+- **T8** — Commit. Done.
 
 ## Log
 
@@ -115,4 +115,4 @@ remaining admin placeholders.
 - Remaining secondary gaps: cash movement/authorizer UI, menu service worker,
   PDF QR exports, KDS sound alert, and physical printer validation.
 
-Commit: pending.
+Commit: `bd42147` (`feat(admin): complete operational management pages`).
