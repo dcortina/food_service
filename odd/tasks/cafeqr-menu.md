@@ -80,7 +80,7 @@ phone viewport.
 - **T4** — Public order submission and tracking. `S3`, `S4`. Done.
 - **T5** — POS confirm action for new QR orders. `S5`. Done.
 - **T6** — Manifest, build, and HTTP smoke test. `S6`. Done.
-- **T7** — Commit. `S1`–`S6`. In progress.
+- **T7** — Commit. `S1`–`S6`. Done.
 
 ## Log
 
@@ -118,4 +118,4 @@ which completes the QR self-ordering loop with the POS and KDS.
 - No browser was available, so the UI was verified through build and HTTP
   contracts, not click-through.
 
-Commit: pending.
+Commit: `046978a` (`feat(menu): add public QR menu and self-ordering`).
