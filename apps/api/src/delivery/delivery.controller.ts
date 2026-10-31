@@ -68,6 +68,12 @@ export class DeliveryController {
     return this.deliveryService.currentLiquidation(user);
   }
 
+  @Get('liquidations/pending')
+  @RequirePermissions('repartidor.liquidar')
+  listPendingLiquidations(@CurrentUser() user: AuthenticatedUser) {
+    return this.deliveryService.listPendingLiquidations(user);
+  }
+
   @Get('liquidations')
   @RequirePermissions('repartidor.ver')
   listLiquidations(@CurrentUser() user: AuthenticatedUser) {

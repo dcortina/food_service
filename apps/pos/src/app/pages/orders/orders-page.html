@@ -59,6 +59,12 @@
   </button>
 </div>
 
+@if (success()) {
+  <div class="mt-4 rounded-2xl border border-lettuce/20 bg-lettuce/10 px-4 py-3 text-sm font-medium text-lettuce">
+    {{ success() }}
+  </div>
+}
+
 @if (loading()) {
   <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
     @for (item of [1, 2, 3, 4, 5, 6]; track item) {
@@ -107,30 +113,41 @@
           </span>
         </div>
 
-        <div class="mt-4 flex items-center justify-between gap-3 border-t border-stone-100 pt-3">
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-stone-100 pt-3">
           <p class="truncate text-xs text-stone-400">
             {{ order.clienteNombre || 'Cliente sin nombre' }}
           </p>
-          @if (order.estadoCumplimiento === 'nuevo' && canConfirm()) {
-            <button
-              type="button"
-              (click)="confirmOrder(order)"
-              [disabled]="isConfirming(order.id)"
-              class="shrink-0 rounded-xl bg-mustard-400 px-3 py-2 text-xs font-bold text-charcoal shadow-sm transition hover:bg-mustard-300 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {{ isConfirming(order.id) ? 'Confirmando...' : 'Confirmar' }}
-            </button>
-          } @else if (order.estadoPago !== 'pagado') {
-            <button
-              type="button"
-              (click)="openPayment(order)"
-              class="shrink-0 rounded-xl bg-brand-600 px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-brand-700"
-            >
-              Cobrar
-            </button>
-          } @else {
-            <span class="shrink-0 text-xs font-bold text-lettuce">Pagado</span>
-          }
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            @if (canAssignOrder(order)) {
+              <button
+                type="button"
+                (click)="openAssign(order)"
+                class="shrink-0 rounded-xl border border-stone-300 bg-white px-3 py-2 text-xs font-bold text-stone-700 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+              >
+                Asignar
+              </button>
+            }
+            @if (order.estadoCumplimiento === 'nuevo' && canConfirm()) {
+              <button
+                type="button"
+                (click)="confirmOrder(order)"
+                [disabled]="isConfirming(order.id)"
+                class="shrink-0 rounded-xl bg-mustard-400 px-3 py-2 text-xs font-bold text-charcoal shadow-sm transition hover:bg-mustard-300 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {{ isConfirming(order.id) ? 'Confirmando...' : 'Confirmar' }}
+              </button>
+            } @else if (order.estadoPago !== 'pagado') {
+              <button
+                type="button"
+                (click)="openPayment(order)"
+                class="shrink-0 rounded-xl bg-brand-600 px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-brand-700"
+              >
+                Cobrar
+              </button>
+            } @else {
+              <span class="shrink-0 text-xs font-bold text-lettuce">Pagado</span>
+            }
+          </div>
         </div>
       </article>
     } @empty {
@@ -152,4 +169,107 @@
     (paid)="onPaid($event)"
     (closed)="onPaymentClosed()"
   />
+}
+
+@if (assignOrder(); as order) {
+  <div
+    class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    (click)="closeAssign()"
+  >
+    <div
+      class="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+            Asignar repartidor
+          </p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+            {{ order.codigoPublico }}
+          </h2>
+          <p class="mt-1 text-sm text-stone-500">
+            {{ order.clienteNombre || 'Cliente' }} ·
+            {{ order.direccionEntrega || 'Sin dirección' }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="closeAssign()"
+          class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+          aria-label="Cerrar"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      @if (couriers().length) {
+        <div class="mt-4 space-y-2">
+          @for (courier of couriers(); track courier.id) {
+            <label
+              class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border p-3 transition"
+              [ngClass]="
+                assignCourierId() === courier.id
+                  ? 'border-brand-300 bg-brand-50'
+                  : 'border-stone-200'
+              "
+            >
+              <span class="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="courier"
+                  [value]="courier.id"
+                  [checked]="assignCourierId() === courier.id"
+                  (change)="assignCourierId.set(courier.id)"
+                  class="h-4 w-4 accent-brand-600"
+                />
+                <span>
+                  <span class="block text-sm font-semibold text-charcoal">{{ courier.nombre }}</span>
+                  <span class="block text-[11px] text-stone-400">{{ courier.vehiculo || 'Sin vehículo' }}</span>
+                </span>
+              </span>
+            </label>
+          }
+        </div>
+
+        @if (assignError()) {
+          <p class="mt-2 text-xs text-brand-700">{{ assignError() }}</p>
+        }
+
+        <div class="mt-5 flex gap-2">
+          <button
+            type="button"
+            (click)="closeAssign()"
+            [disabled]="assigning()"
+            class="flex-1 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm font-bold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="confirmAssign()"
+            [disabled]="assigning()"
+            class="flex-1 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ assigning() ? 'Asignando...' : 'Asignar' }}
+          </button>
+        </div>
+      } @else {
+        <p class="mt-5 rounded-2xl bg-stone-50 px-4 py-8 text-center text-sm text-stone-500">
+          No hay repartidores activos.
+        </p>
+      }
+    </div>
+  </div>
 }

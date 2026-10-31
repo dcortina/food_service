@@ -26,8 +26,21 @@ const assignmentInclude = {
   },
 } satisfies Prisma.AsignacionRepartidorInclude;
 
+const pendingInclude = {
+  ...assignmentInclude,
+  repartidor: {
+    include: {
+      usuario: { select: { id: true, nombre: true, username: true } },
+    },
+  },
+} satisfies Prisma.AsignacionRepartidorInclude;
+
 type AssignmentWithOrder = Prisma.AsignacionRepartidorGetPayload<{
   include: typeof assignmentInclude;
+}>;
+
+type PendingAssignment = Prisma.AsignacionRepartidorGetPayload<{
+  include: typeof pendingInclude;
 }>;
 
 @Injectable()
@@ -290,6 +303,60 @@ export class DeliveryService {
       totalPedidos: assignments.length,
       orders: assignments.map((assignment) => this.mapAssignment(assignment)),
     };
+  }
+
+  async listPendingLiquidations(current: AuthenticatedUser) {
+    const assignments = await this.prisma.asignacionRepartidor.findMany({
+      where: {
+        entregadoEn: { not: null },
+        liquidacionId: null,
+        pedido: { negocioId: current.negocioId },
+      },
+      include: pendingInclude,
+      orderBy: { entregadoEn: 'asc' },
+    });
+
+    const groups = new Map<
+      string,
+      {
+        repartidor: PendingAssignment['repartidor'];
+        total: Prisma.Decimal;
+        assignments: PendingAssignment[];
+      }
+    >();
+
+    for (const assignment of assignments) {
+      const currentGroup = groups.get(assignment.repartidorId);
+
+      if (currentGroup) {
+        currentGroup.total = currentGroup.total.plus(
+          assignment.efectivoCobrado ?? new Prisma.Decimal(0),
+        );
+        currentGroup.assignments.push(assignment);
+      } else {
+        groups.set(assignment.repartidorId, {
+          repartidor: assignment.repartidor,
+          total: new Prisma.Decimal(
+            assignment.efectivoCobrado ?? new Prisma.Decimal(0),
+          ),
+          assignments: [assignment],
+        });
+      }
+    }
+
+    return Array.from(groups.values()).map((group) => ({
+      repartidor: {
+        id: group.repartidor.id,
+        nombre: group.repartidor.usuario.nombre,
+        username: group.repartidor.usuario.username,
+        vehiculo: group.repartidor.vehiculo,
+      },
+      totalCobrado: group.total.toFixed(2),
+      totalPedidos: group.assignments.length,
+      orders: group.assignments.map((assignment) =>
+        this.mapAssignment(assignment),
+      ),
+    }));
   }
 
   async listLiquidations(current: AuthenticatedUser) {

@@ -48,6 +48,20 @@ export interface DeliveryLiquidation {
   totalPedidos: number;
 }
 
+export interface Courier {
+  id: string;
+  nombre: string;
+  username: string;
+  vehiculo: string | null;
+}
+
+export interface PendingLiquidation {
+  repartidor: Courier;
+  totalCobrado: string;
+  totalPedidos: number;
+  orders: DeliveryOrder[];
+}
+
 export interface DeliveryCurrentLiquidation {
   repartidor: {
     id: string;
@@ -66,6 +80,17 @@ export class DeliveryApi {
 
   listOrders(): Observable<DeliveryOrder[]> {
     return this.http.get<DeliveryOrder[]>('/api/v1/delivery/orders');
+  }
+
+  listCouriers(): Observable<Courier[]> {
+    return this.http.get<Courier[]>('/api/v1/delivery/couriers');
+  }
+
+  assign(orderId: string, repartidorId: string): Observable<DeliveryOrder> {
+    return this.http.post<DeliveryOrder>(
+      `/api/v1/delivery/orders/${orderId}/assign`,
+      { repartidorId },
+    );
   }
 
   start(orderId: string): Observable<DeliveryOrder> {
@@ -94,6 +119,23 @@ export class DeliveryApi {
   listLiquidations(): Observable<DeliveryLiquidation[]> {
     return this.http.get<DeliveryLiquidation[]>(
       '/api/v1/delivery/liquidations',
+    );
+  }
+
+  listPendingLiquidations(): Observable<PendingLiquidation[]> {
+    return this.http.get<PendingLiquidation[]>(
+      '/api/v1/delivery/liquidations/pending',
+    );
+  }
+
+  createLiquidation(payload: {
+    repartidorId: string;
+    totalEntregado: string;
+    observaciones?: string;
+  }): Observable<DeliveryLiquidation> {
+    return this.http.post<DeliveryLiquidation>(
+      '/api/v1/delivery/liquidations',
+      payload,
     );
   }
 }

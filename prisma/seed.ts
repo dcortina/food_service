@@ -136,6 +136,8 @@ async function main() {
         'mesa.ver',
         'reporte.ver',
         'kds.ver',
+        'repartidor.ver',
+        'repartidor.asignar',
       ],
     ],
     [

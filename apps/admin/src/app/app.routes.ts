@@ -33,6 +33,11 @@ export const appRoutes: Routes = [
       { path: 'tables', ...comingSoon('Mesas y códigos QR') },
       { path: 'cash', ...comingSoon('Caja') },
       { path: 'payments', ...comingSoon('Pagos') },
+      {
+        path: 'couriers',
+        loadComponent: () =>
+          import('./pages/couriers/couriers').then((m) => m.CouriersPage),
+      },
       { path: 'users', ...comingSoon('Usuarios y roles') },
       { path: 'reports', ...comingSoon('Reportes') },
       {

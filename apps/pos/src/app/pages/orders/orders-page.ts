@@ -1,6 +1,8 @@
 import { NgClass } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
+  Courier,
+  DeliveryApi,
   Order,
   OrdersApi,
   Payment,
@@ -24,18 +26,30 @@ type OrderFilter = 'active' | 'all';
 })
 export class OrdersPage implements OnInit {
   private readonly ordersApi = inject(OrdersApi);
+  private readonly deliveryApi = inject(DeliveryApi);
   private readonly auth = inject(AuthService);
 
   readonly canConfirm = computed(() =>
     this.auth.hasPermission(PERMISSIONS.PEDIDO_CREAR),
   );
 
+  readonly canAssign = computed(() =>
+    this.auth.hasPermission(PERMISSIONS.REPARTIDOR_ASIGNAR),
+  );
+
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly success = signal<string | null>(null);
   readonly filter = signal<OrderFilter>('active');
   readonly paymentOrder = signal<Order | null>(null);
   readonly confirming = signal<Set<string>>(new Set());
+
+  readonly couriers = signal<Courier[]>([]);
+  readonly assignOrder = signal<Order | null>(null);
+  readonly assignCourierId = signal<string | null>(null);
+  readonly assigning = signal(false);
+  readonly assignError = signal<string | null>(null);
 
   readonly activeStates = ['nuevo', 'confirmado', 'en_preparacion', 'listo'];
 
@@ -91,6 +105,80 @@ export class OrdersPage implements OnInit {
 
   openPayment(order: Order): void {
     this.paymentOrder.set(order);
+  }
+
+  isDelivery(order: Order): boolean {
+    return order.tipoServicio === 'domicilio' || order.canal === 'domicilio';
+  }
+
+  canAssignOrder(order: Order): boolean {
+    return (
+      this.canAssign() &&
+      this.isDelivery(order) &&
+      ['confirmado', 'en_preparacion', 'listo'].includes(
+        order.estadoCumplimiento,
+      )
+    );
+  }
+
+  openAssign(order: Order): void {
+    if (!this.canAssignOrder(order)) {
+      return;
+    }
+
+    this.assignError.set(null);
+    this.success.set(null);
+
+    if (this.couriers().length) {
+      this.assignOrder.set(order);
+      this.assignCourierId.set(this.couriers()[0]?.id ?? null);
+      return;
+    }
+
+    this.deliveryApi.listCouriers().subscribe({
+      next: (couriers) => {
+        this.couriers.set(couriers);
+        this.assignOrder.set(order);
+        this.assignCourierId.set(couriers[0]?.id ?? null);
+      },
+      error: () => {
+        this.error.set('No se pudieron cargar los repartidores.');
+      },
+    });
+  }
+
+  closeAssign(): void {
+    if (!this.assigning()) {
+      this.assignOrder.set(null);
+      this.assignError.set(null);
+    }
+  }
+
+  confirmAssign(): void {
+    const order = this.assignOrder();
+    const courierId = this.assignCourierId();
+
+    if (!order || !courierId || this.assigning()) {
+      return;
+    }
+
+    this.assigning.set(true);
+    this.assignError.set(null);
+
+    this.deliveryApi.assign(order.id, courierId).subscribe({
+      next: () => {
+        this.assigning.set(false);
+        this.assignOrder.set(null);
+        this.success.set(`Pedido ${order.codigoPublico} asignado al repartidor.`);
+        this.load();
+      },
+      error: (error) => {
+        this.assignError.set(
+          this.message(error, 'No se pudo asignar el pedido.'),
+        );
+        this.assigning.set(false);
+      },
+    });
   }
 
   confirmOrder(order: Order): void {
@@ -192,5 +280,16 @@ export class OrdersPage implements OnInit {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(value));
+  }
+
+  private message(error: unknown, fallback: string): string {
+    const message = (error as { error?: { message?: string | string[] } })
+      ?.error?.message;
+
+    if (Array.isArray(message)) {
+      return message.join(' ');
+    }
+
+    return typeof message === 'string' && message ? message : fallback;
   }
 }

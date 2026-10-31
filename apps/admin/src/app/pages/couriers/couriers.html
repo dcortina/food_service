@@ -1,0 +1,256 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600">
+      Operación
+    </p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-charcoal">
+      Repartidores
+    </h1>
+    <p class="mt-1 text-sm text-stone-500">
+      Entregas asignadas, efectivo cobrado y liquidaciones.
+    </p>
+  </div>
+  <button
+    type="button"
+    (click)="load()"
+    [disabled]="loading()"
+    class="inline-flex items-center justify-center gap-2 self-start rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+  >
+    <svg
+      class="h-4 w-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4.5 12a7.5 7.5 0 0113.15-4.95M19.5 12a7.5 7.5 0 01-13.15 4.95M4.5 5.25v4.5h4.5M19.5 18.75v-4.5h-4.5" />
+    </svg>
+    Actualizar
+  </button>
+</div>
+
+<div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-brand-500 bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Repartidores activos</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ couriers().length }}</p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-mustard-400 bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Efectivo pendiente</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">$ {{ money(totalPending()) }}</p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-charcoal bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Entregas por liquidar</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ totalOrders() }}</p>
+  </article>
+</div>
+
+@if (success()) {
+  <div class="mt-4 rounded-2xl border border-lettuce/20 bg-lettuce/10 px-4 py-3 text-sm font-medium text-lettuce">
+    {{ success() }}
+  </div>
+}
+
+@if (error()) {
+  <div class="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
+    {{ error() }}
+    <button
+      type="button"
+      (click)="load()"
+      class="rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white"
+    >
+      Reintentar
+    </button>
+  </div>
+}
+
+@if (loading()) {
+  <div class="mt-5 grid gap-3 sm:grid-cols-2">
+    @for (item of [1, 2, 3, 4]; track item) {
+      <div class="h-36 animate-pulse rounded-3xl border border-stone-200 bg-white"></div>
+    }
+  </div>
+} @else {
+  <div class="mt-5 grid gap-3 sm:grid-cols-2">
+    @for (courier of couriers(); track courier.id) {
+      @let pending = pendingFor(courier.id);
+      <article class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-lg font-black text-charcoal">{{ courier.nombre }}</p>
+            <p class="mt-1 text-xs text-stone-400">
+              @{{ courier.username }} · {{ courier.vehiculo || 'Sin vehículo' }}
+            </p>
+          </div>
+          <span
+            [ngClass]="
+              pending
+                ? 'bg-mustard-100 text-mustard-800'
+                : 'bg-lettuce/10 text-lettuce'
+            "
+            class="rounded-full px-2.5 py-1 text-[10px] font-bold"
+          >
+            {{ pending ? 'Pendiente' : 'Al día' }}
+          </span>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <div class="rounded-2xl bg-stone-50 px-3 py-2">
+            <p class="text-[10px] font-bold uppercase tracking-wide text-stone-400">
+              Efectivo
+            </p>
+            <p class="text-base font-black text-charcoal">
+              $ {{ money(pending?.totalCobrado ?? 0) }}
+            </p>
+          </div>
+          <div class="rounded-2xl bg-stone-50 px-3 py-2">
+            <p class="text-[10px] font-bold uppercase tracking-wide text-stone-400">
+              Entregas
+            </p>
+            <p class="text-base font-black text-charcoal">
+              {{ pending?.totalPedidos ?? 0 }}
+            </p>
+          </div>
+        </div>
+
+        @if (pending && canLiquidate()) {
+          <button
+            type="button"
+            (click)="openLiquidation(pending)"
+            class="mt-4 w-full rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+          >
+            Liquidar $ {{ money(pending.totalCobrado) }}
+          </button>
+        } @else if (pending) {
+          <p class="mt-4 text-xs text-stone-400">
+            Requiere permiso de liquidación.
+          </p>
+        } @else {
+          <p class="mt-4 text-xs text-stone-400">
+            Sin efectivo pendiente de liquidar.
+          </p>
+        }
+      </article>
+    } @empty {
+      <div class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white p-10 text-center">
+        <p class="text-sm font-semibold text-stone-600">
+          No hay repartidores activos.
+        </p>
+        <p class="mt-1 text-xs text-stone-400">
+          Cree un usuario con rol Repartidor para verlo acá.
+        </p>
+      </div>
+    }
+  </div>
+}
+
+@if (selected(); as pending) {
+  <div
+    class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    (click)="closeModal()"
+  >
+    <div
+      class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+            Cerrar liquidación
+          </p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+            {{ pending.repartidor.nombre }}
+          </h2>
+          <p class="mt-1 text-sm text-stone-500">
+            {{ pending.totalPedidos }}
+            {{ pending.totalPedidos === 1 ? 'entrega' : 'entregas' }} · $
+            {{ money(pending.totalCobrado) }} cobrado
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+          aria-label="Cerrar"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-4 max-h-52 space-y-2 overflow-y-auto">
+        @for (order of pending.orders; track order.orderId) {
+          <div class="flex items-center justify-between gap-3 rounded-2xl bg-stone-50 px-3 py-2.5">
+            <div>
+              <p class="text-sm font-bold text-charcoal">{{ order.codigoPublico }}</p>
+              <p class="text-[11px] text-stone-400">
+                {{ order.cliente.nombre || 'Cliente' }} · {{ formatDate(order.entregadoEn) }}
+              </p>
+            </div>
+            <span class="text-sm font-black text-charcoal">
+              {{ order.moneda.simbolo }} {{ money(order.efectivoCobrado) }}
+            </span>
+          </div>
+        }
+      </div>
+
+      <label class="mt-4 block text-sm font-semibold text-stone-700">
+        Efectivo entregado a caja
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          [ngModel]="totalEntregado()"
+          (ngModelChange)="totalEntregado.set($event)"
+          class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+        />
+      </label>
+
+      <label class="mt-3 block text-sm font-semibold text-stone-700">
+        Observaciones
+        <textarea
+          rows="2"
+          [ngModel]="observaciones()"
+          (ngModelChange)="observaciones.set($event)"
+          placeholder="Opcional"
+          class="mt-1.5 block w-full resize-none rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+        ></textarea>
+      </label>
+
+      @if (closeError()) {
+        <p class="mt-2 text-xs text-brand-700">{{ closeError() }}</p>
+      }
+
+      <div class="mt-5 flex gap-2">
+        <button
+          type="button"
+          (click)="closeModal()"
+          [disabled]="saving()"
+          class="flex-1 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm font-bold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="closeLiquidation()"
+          [disabled]="saving()"
+          class="flex-1 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {{ saving() ? 'Cerrando...' : 'Cerrar liquidación' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

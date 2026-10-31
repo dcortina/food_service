@@ -78,10 +78,9 @@ customer menu at `http://localhost:4203`, and the courier app at
 delivery. The menu is public and opens from a table QR URL such as
 `http://localhost:4203/qr/6d6d75d3-3854-4038-a61f-cc5351ec13fb` (seeded Mesa 1).
 
-Delivery orders are assigned through
-`POST /api/v1/delivery/orders/:id/assign` with an owner token until the
-dispatcher UI lands. Liquidation closure uses
-`POST /api/v1/delivery/liquidations` with an owner token.
+Delivery orders are assigned from **POS → Pedidos → Asignar** (requires
+`repartidor.asignar`). Courier liquidations are closed from **Administración →
+Repartidores** (requires `repartidor.liquidar`).
 
 The business name and logo are managed in **Administración → Configuración**. The
 login page reads the public branding from `/api/v1/public/branding`, so the same
