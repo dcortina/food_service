@@ -90,7 +90,7 @@ seeded one. The missing piece was the admin catalog UI.
     delivered, and liquidated.
 - No browser was available, so the UI was verified through build and the exact
   API contracts the page calls, not click-through.
-- Remaining UI gaps: modifier group creation, delivery assignment/liquidation,
-  reports page, tables/QR, and users.
+- Follow-up completed in `cafeqr-admin-operations.md`: modifier group creation,
+  delivery assignment/liquidation, reports page, tables/QR, and users.
 
 Commit: `53e6045` (`feat(admin): add catalog management`).

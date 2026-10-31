@@ -17,7 +17,7 @@ import {
 import { PERMISSIONS } from '@cafeqr/shared';
 import { forkJoin } from 'rxjs';
 
-type CatalogTab = 'products' | 'categories';
+type CatalogTab = 'products' | 'categories' | 'modifiers';
 
 @Component({
   selector: 'app-catalog-page',
@@ -56,6 +56,10 @@ export class CatalogPage implements OnInit {
   readonly categoryError = signal<string | null>(null);
   readonly toggling = signal<Set<string>>(new Set());
 
+  readonly modifierFormOpen = signal(false);
+  readonly savingModifier = signal(false);
+  readonly modifierError = signal<string | null>(null);
+
   readonly productForm = this.fb.nonNullable.group({
     categoriaId: ['', [Validators.required]],
     nombre: [
@@ -91,6 +95,24 @@ export class CatalogPage implements OnInit {
     ],
     orden: [0, [Validators.required, Validators.min(0)]],
     activo: [true],
+  });
+
+  readonly modifierForm = this.fb.nonNullable.group({
+    nombre: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(120),
+      ],
+    ],
+    tipo: ['unico' as 'unico' | 'multiple'],
+    minSeleccion: [0, [Validators.required, Validators.min(0)]],
+    maxSeleccion: [1, [Validators.required, Validators.min(1)]],
+    obligatorio: [false],
+    orden: [0, [Validators.required, Validators.min(0)]],
+    activo: [true],
+    modificadores: this.fb.array([this.createModifierRow()]),
   });
 
   readonly filteredProducts = computed(() => {
@@ -304,6 +326,110 @@ export class CatalogPage implements OnInit {
       });
   }
 
+  openCreateModifierGroup(): void {
+    this.modifierForm.reset({
+      nombre: '',
+      tipo: 'unico',
+      minSeleccion: 0,
+      maxSeleccion: 1,
+      obligatorio: false,
+      orden: 0,
+      activo: true,
+    });
+    this.modifierForm.controls.modificadores.clear();
+    this.modifierForm.controls.modificadores.push(this.createModifierRow());
+    this.modifierError.set(null);
+    this.modifierFormOpen.set(true);
+  }
+
+  closeModifierForm(): void {
+    if (!this.savingModifier()) {
+      this.modifierFormOpen.set(false);
+      this.modifierError.set(null);
+    }
+  }
+
+  addModifierRow(): void {
+    this.modifierForm.controls.modificadores.push(
+      this.createModifierRow(),
+    );
+  }
+
+  removeModifierRow(index: number): void {
+    if (this.modifierForm.controls.modificadores.length <= 1) {
+      return;
+    }
+
+    this.modifierForm.controls.modificadores.removeAt(index);
+  }
+
+  saveModifierGroup(): void {
+    if (this.savingModifier()) {
+      return;
+    }
+
+    if (this.modifierForm.invalid) {
+      this.modifierForm.markAllAsTouched();
+      return;
+    }
+
+    const value = this.modifierForm.getRawValue();
+    const min = Number(value.minSeleccion);
+    const max = Number(value.maxSeleccion);
+
+    if (min > max) {
+      this.modifierError.set(
+        'La selección mínima no puede ser mayor que la máxima.',
+      );
+      return;
+    }
+
+    const modificadores = value.modificadores
+      .filter((modifier) => modifier.nombre.trim())
+      .map((modifier, index) => ({
+        nombre: modifier.nombre.trim(),
+        tipo: modifier.tipo,
+        precioExtra: modifier.precioExtra.trim() || '0.00',
+        orden: index,
+        activo: true,
+      }));
+
+    if (!modificadores.length) {
+      this.modifierError.set('Agregue al menos un modificador.');
+      return;
+    }
+
+    this.savingModifier.set(true);
+    this.modifierError.set(null);
+    this.success.set(null);
+
+    this.catalogApi
+      .createModifierGroup({
+        nombre: value.nombre.trim(),
+        tipo: value.tipo,
+        minSeleccion: min,
+        maxSeleccion: max,
+        obligatorio: value.obligatorio,
+        orden: Number(value.orden),
+        activo: value.activo,
+        modificadores,
+      })
+      .subscribe({
+        next: (group) => {
+          this.savingModifier.set(false);
+          this.modifierFormOpen.set(false);
+          this.success.set(`Grupo “${group.nombre}” creado.`);
+          this.load();
+        },
+        error: (error) => {
+          this.modifierError.set(
+            this.message(error, 'No se pudo crear el grupo.'),
+          );
+          this.savingModifier.set(false);
+        },
+      });
+  }
+
   openCreateCategory(): void {
     this.editingCategory.set(null);
     this.categoryForm.reset({ nombre: '', orden: 0, activo: true });
@@ -408,6 +534,20 @@ export class CatalogPage implements OnInit {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(Number(value ?? 0));
+  }
+
+  private createModifierRow() {
+    return this.fb.nonNullable.group({
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      tipo: ['agregar' as 'agregar' | 'quitar' | 'nota'],
+      precioExtra: [
+        '0.00',
+        [
+          Validators.required,
+          Validators.pattern(/^\d+(\.\d{1,2})?$/),
+        ],
+      ],
+    });
   }
 
   private message(error: unknown, fallback: string): string {

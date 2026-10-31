@@ -78,6 +78,31 @@ export class UsersService {
     };
   }
 
+  listRoles() {
+    return this.prisma.rol.findMany({
+      orderBy: { nombre: 'asc' },
+      select: {
+        id: true,
+        nombre: true,
+        descripcion: true,
+      },
+    });
+  }
+
+  listBranches(current: AuthenticatedUser) {
+    return this.prisma.sucursal.findMany({
+      where: {
+        negocioId: current.negocioId,
+        activo: true,
+      },
+      orderBy: { nombre: 'asc' },
+      select: {
+        id: true,
+        nombre: true,
+      },
+    });
+  }
+
   async findOne(id: string, current: AuthenticatedUser) {
     const user = await this.prisma.usuario.findFirst({
       where: { id, negocioId: current.negocioId },

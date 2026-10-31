@@ -40,6 +40,16 @@ export class UsersController {
     return this.usersService.create(dto, user);
   }
 
+  @Get('roles')
+  listRoles() {
+    return this.usersService.listRoles();
+  }
+
+  @Get('branches')
+  listBranches(@CurrentUser() user: AuthenticatedUser) {
+    return this.usersService.listBranches(user);
+  }
+
   @Get(':id')
   findOne(
     @Param('id', ParseUUIDPipe) id: string,

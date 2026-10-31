@@ -45,6 +45,25 @@ export interface CreateProductPayload {
 
 export type UpdateProductPayload = Partial<CreateProductPayload>;
 
+export interface CreateModifierPayload {
+  nombre: string;
+  tipo?: 'agregar' | 'quitar' | 'nota';
+  precioExtra?: string;
+  orden?: number;
+  activo?: boolean;
+}
+
+export interface CreateModifierGroupPayload {
+  nombre: string;
+  tipo?: 'unico' | 'multiple';
+  minSeleccion?: number;
+  maxSeleccion?: number;
+  obligatorio?: boolean;
+  orden?: number;
+  activo?: boolean;
+  modificadores?: CreateModifierPayload[];
+}
+
 export interface ProductPrice {
   monedaId: string;
   moneda: { codigo: string; simbolo: string };
@@ -154,6 +173,15 @@ export class CatalogApi {
     return this.http.get<Paginated<Product>>('/api/v1/catalog/products', {
       params: httpParams,
     });
+  }
+
+  createModifierGroup(
+    payload: CreateModifierGroupPayload,
+  ): Observable<ModifierGroup> {
+    return this.http.post<ModifierGroup>(
+      '/api/v1/catalog/modifier-groups',
+      payload,
+    );
   }
 
   createProduct(payload: CreateProductPayload): Observable<Product> {

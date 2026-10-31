@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Paginated } from './api.types';
 
 export interface ShiftMovement {
   id: string;
@@ -63,6 +64,29 @@ export class CashApi {
 
   getCurrent(): Observable<CashShift> {
     return this.http.get<CashShift>('/api/v1/cash/shifts/current');
+  }
+
+  list(params: {
+    page?: number;
+    pageSize?: number;
+    estado?: string;
+    fecha?: string;
+  } = {}): Observable<Paginated<CashShift>> {
+    let httpParams = new HttpParams()
+      .set('page', String(params.page ?? 1))
+      .set('pageSize', String(params.pageSize ?? 50));
+
+    if (params.estado) {
+      httpParams = httpParams.set('estado', params.estado);
+    }
+
+    if (params.fecha) {
+      httpParams = httpParams.set('fecha', params.fecha);
+    }
+
+    return this.http.get<Paginated<CashShift>>('/api/v1/cash/shifts', {
+      params: httpParams,
+    });
   }
 
   open(payload: OpenShiftPayload): Observable<CashShift> {

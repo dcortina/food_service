@@ -1,0 +1,163 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600">
+      Cobros
+    </p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-charcoal">
+      Pagos
+    </h1>
+    <p class="mt-1 text-sm text-stone-500">
+      Verifique pagos electrónicos, concilie y anule con motivo.
+    </p>
+  </div>
+  <button
+    type="button"
+    (click)="load()"
+    [disabled]="loading()"
+    class="self-start rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-60 sm:self-auto"
+  >
+    Actualizar
+  </button>
+</div>
+
+@if (success()) {
+  <div class="mt-4 rounded-2xl border border-lettuce/20 bg-lettuce/10 px-4 py-3 text-sm font-medium text-lettuce">
+    {{ success() }}
+  </div>
+}
+
+@if (error()) {
+  <div class="mt-4 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
+    {{ error() }}
+  </div>
+}
+
+<div class="mt-5 flex flex-wrap gap-2">
+  @for (option of states; track option.value) {
+    <button
+      type="button"
+      (click)="setStateFilter(option.value)"
+      [ngClass]="
+        stateFilter() === option.value
+          ? 'bg-charcoal text-white'
+          : 'bg-white text-stone-600 hover:bg-stone-100'
+      "
+      class="rounded-full border border-stone-200 px-3.5 py-2 text-xs font-bold transition"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
+
+<div class="mt-2 flex flex-wrap gap-2">
+  @for (option of methods; track option.value) {
+    <button
+      type="button"
+      (click)="setMethodFilter(option.value)"
+      [ngClass]="
+        methodFilter() === option.value
+          ? 'bg-brand-600 text-white'
+          : 'bg-white text-stone-600 hover:bg-stone-100'
+      "
+      class="rounded-full border border-stone-200 px-3.5 py-2 text-xs font-bold transition"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
+
+<section class="mt-4 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+  @if (loading()) {
+    <div class="space-y-2 p-4">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="h-16 animate-pulse rounded-2xl bg-stone-100"></div>
+      }
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[950px] text-left text-sm">
+        <thead class="bg-stone-50 text-[11px] uppercase tracking-wide text-stone-400">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Pedido</th>
+            <th class="px-5 py-3 font-semibold">Método</th>
+            <th class="px-5 py-3 font-semibold">Estado</th>
+            <th class="px-5 py-3 font-semibold">Monto</th>
+            <th class="px-5 py-3 font-semibold">Recibido / cambio</th>
+            <th class="px-5 py-3 font-semibold">Referencia</th>
+            <th class="px-5 py-3 font-semibold">Fecha</th>
+            <th class="px-5 py-3 text-right font-semibold">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (payment of payments(); track payment.id) {
+            <tr class="border-t border-stone-100">
+              <td class="px-5 py-3">
+                <p class="font-bold text-charcoal">{{ payment.pedido.codigoPublico }}</p>
+                <p class="text-xs text-stone-400">
+                  {{ payment.pedido.estadoCumplimiento }} · {{ payment.pedido.estadoPago }}
+                </p>
+              </td>
+              <td class="px-5 py-3 text-stone-600">{{ metodoLabel(payment.metodo) }}</td>
+              <td class="px-5 py-3">
+                <span [ngClass]="stateClass(payment.estado)">
+                  {{ estadoLabel(payment.estado) }}
+                </span>
+              </td>
+              <td class="px-5 py-3 font-black text-charcoal">$ {{ money(payment.monto) }}</td>
+              <td class="px-5 py-3 text-xs text-stone-500">
+                {{ payment.montoRecibido === null ? '—' : '$ ' + money(payment.montoRecibido) }}
+                @if (payment.cambio !== null) {
+                  · cambio $ {{ money(payment.cambio) }}
+                }
+              </td>
+              <td class="px-5 py-3 text-xs text-stone-500">
+                {{ payment.referenciaExterna || '—' }}
+              </td>
+              <td class="px-5 py-3 text-xs text-stone-400">{{ formatDate(payment.creadoEn) }}</td>
+              <td class="px-5 py-3 text-right">
+                <div class="flex flex-wrap justify-end gap-1.5">
+                  @if (payment.estado === 'registrado' && payment.metodo !== 'efectivo' && canVerify()) {
+                    <button
+                      type="button"
+                      (click)="verify(payment)"
+                      [disabled]="busy().has(payment.id)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-600 transition hover:border-mustard-300 hover:bg-mustard-50 hover:text-mustard-800 disabled:opacity-50"
+                    >
+                      {{ busy().has(payment.id) ? '...' : 'Verificar' }}
+                    </button>
+                  }
+                  @if (payment.estado === 'verificado' && payment.metodo !== 'efectivo' && canReconcile()) {
+                    <button
+                      type="button"
+                      (click)="reconcile(payment)"
+                      [disabled]="busy().has(payment.id)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-600 transition hover:border-lettuce/40 hover:bg-lettuce/10 hover:text-lettuce disabled:opacity-50"
+                    >
+                      {{ busy().has(payment.id) ? '...' : 'Conciliar' }}
+                    </button>
+                  }
+                  @if (payment.estado !== 'anulado' && canVoid()) {
+                    <button
+                      type="button"
+                      (click)="void(payment)"
+                      [disabled]="busy().has(payment.id)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-500 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-50"
+                    >
+                      Anular
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="px-5 py-10 text-center text-sm text-stone-500">
+                No hay pagos para este filtro.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

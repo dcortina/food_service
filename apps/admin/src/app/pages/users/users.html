@@ -1,0 +1,352 @@
+<div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <p class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600">
+      Equipo
+    </p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-charcoal">
+      Usuarios y roles
+    </h1>
+    <p class="mt-1 text-sm text-stone-500">
+      Cree usuarios, asigne roles y controle el acceso al sistema.
+    </p>
+  </div>
+  @if (canManage()) {
+    <button
+      type="button"
+      (click)="openCreate()"
+      class="self-start rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 lg:self-auto"
+    >
+      Nuevo usuario
+    </button>
+  }
+</div>
+
+<div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-brand-500 bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Usuarios</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ users().length }}</p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-lettuce bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Activos</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">
+      {{ users().filter((user) => user.activo).length }}
+    </p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-mustard-400 bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Roles</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ roles().length }}</p>
+  </article>
+</div>
+
+@if (success()) {
+  <div class="mt-4 rounded-2xl border border-lettuce/20 bg-lettuce/10 px-4 py-3 text-sm font-medium text-lettuce">
+    {{ success() }}
+  </div>
+}
+
+@if (error()) {
+  <div class="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
+    {{ error() }}
+    <button
+      type="button"
+      (click)="load()"
+      class="rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white"
+    >
+      Reintentar
+    </button>
+  </div>
+}
+
+<section class="mt-5 rounded-3xl border border-stone-200 bg-white shadow-sm">
+  <div class="flex flex-col gap-3 border-b border-stone-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+    <div class="relative flex-1">
+      <svg
+        class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+      </svg>
+      <input
+        type="search"
+        [value]="search()"
+        (input)="setSearch($event)"
+        placeholder="Buscar por nombre, usuario o teléfono..."
+        class="block w-full rounded-2xl border border-stone-300 bg-stone-50 py-2.5 pl-9 pr-3.5 text-sm text-charcoal outline-none placeholder:text-stone-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10"
+      />
+    </div>
+    <div class="flex gap-2">
+      @for (option of [
+        { value: 'all', label: 'Todos' },
+        { value: 'active', label: 'Activos' },
+        { value: 'inactive', label: 'Inactivos' }
+      ]; track option.value) {
+        <button
+          type="button"
+          (click)="setFilter($any(option.value))"
+          [ngClass]="
+            filter() === option.value
+              ? 'bg-charcoal text-white'
+              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+          "
+          class="rounded-full px-3 py-1.5 text-xs font-bold transition"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="space-y-2 p-4">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="h-14 animate-pulse rounded-2xl bg-stone-100"></div>
+      }
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[800px] text-left text-sm">
+        <thead class="bg-stone-50 text-[11px] uppercase tracking-wide text-stone-400">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Usuario</th>
+            <th class="px-5 py-3 font-semibold">Rol</th>
+            <th class="px-5 py-3 font-semibold">Sucursal</th>
+            <th class="px-5 py-3 font-semibold">Contacto</th>
+            <th class="px-5 py-3 font-semibold">Último acceso</th>
+            <th class="px-5 py-3 font-semibold">Estado</th>
+            <th class="px-5 py-3 text-right font-semibold">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers(); track user.id) {
+            <tr class="border-t border-stone-100">
+              <td class="px-5 py-3">
+                <p class="font-semibold text-charcoal">{{ user.nombre }}</p>
+                <p class="text-xs text-stone-400">@{{ user.username }}</p>
+              </td>
+              <td class="px-5 py-3">
+                <span class="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
+                  {{ roleLabel(user) }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-stone-500">
+                {{ user.sucursal?.nombre || '—' }}
+              </td>
+              <td class="px-5 py-3 text-stone-500">
+                {{ user.telefono || '—' }}
+              </td>
+              <td class="px-5 py-3 text-xs text-stone-400">
+                {{ formatDate(user.ultimoAcceso) }}
+              </td>
+              <td class="px-5 py-3">
+                <span
+                  [ngClass]="
+                    user.activo
+                      ? 'bg-lettuce/10 text-lettuce'
+                      : 'bg-stone-100 text-stone-500'
+                  "
+                  class="inline-flex rounded-full px-2 py-0.5 text-xs font-bold"
+                >
+                  {{ user.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-right">
+                @if (canManage()) {
+                  <div class="flex justify-end gap-1.5">
+                    <button
+                      type="button"
+                      (click)="openEdit(user)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-600 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      (click)="toggleActive(user)"
+                      [disabled]="toggling().has(user.id)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-600 transition hover:border-mustard-300 hover:bg-mustard-50 hover:text-mustard-800 disabled:opacity-50"
+                    >
+                      {{ toggling().has(user.id) ? '...' : user.activo ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </div>
+                } @else {
+                  <span class="text-xs text-stone-400">—</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="px-5 py-10 text-center text-sm text-stone-500">
+                No hay usuarios para esta búsqueda.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+
+@if (formOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    (click)="closeForm()"
+  >
+    <div
+      class="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+            {{ editingUser() ? 'Editar usuario' : 'Nuevo usuario' }}
+          </p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+            {{ editingUser()?.nombre || 'Miembro del equipo' }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          (click)="closeForm()"
+          class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+          aria-label="Cerrar"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form class="mt-5 space-y-4" [formGroup]="userForm" (ngSubmit)="saveUser()">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm font-semibold text-stone-700">
+            Nombre
+            <input
+              type="text"
+              formControlName="nombre"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+          <label class="block text-sm font-semibold text-stone-700">
+            Usuario
+            <input
+              type="text"
+              formControlName="username"
+              autocomplete="username"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm font-semibold text-stone-700">
+            Contraseña
+            <input
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+              [placeholder]="editingUser() ? 'Dejar vacío para no cambiar' : 'Mínimo 8 caracteres'"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+            @if (userForm.controls.password.touched && userForm.controls.password.invalid) {
+              <p class="mt-1 text-xs text-brand-700">Use al menos 8 caracteres.</p>
+            }
+          </label>
+          <label class="block text-sm font-semibold text-stone-700">
+            PIN de autorización
+            <input
+              type="text"
+              inputmode="numeric"
+              formControlName="pin"
+              placeholder="Opcional, 4-8 dígitos"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+            @if (userForm.controls.pin.touched && userForm.controls.pin.invalid) {
+              <p class="mt-1 text-xs text-brand-700">Use entre 4 y 8 dígitos.</p>
+            }
+          </label>
+        </div>
+
+        <label class="block text-sm font-semibold text-stone-700">
+          Teléfono
+          <input
+            type="tel"
+            formControlName="telefono"
+            placeholder="Opcional"
+            class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          />
+        </label>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm font-semibold text-stone-700">
+            Rol
+            <select
+              formControlName="rolId"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            >
+              @for (role of roles(); track role.id) {
+                <option [value]="role.id">{{ role.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label class="block text-sm font-semibold text-stone-700">
+            Sucursal
+            <select
+              formControlName="sucursalId"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            >
+              @for (branch of branches(); track branch.id) {
+                <option [value]="branch.id">{{ branch.nombre }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (editingUser()) {
+          <label class="flex items-center gap-2 text-sm font-semibold text-stone-700">
+            <input type="checkbox" formControlName="activo" class="h-4 w-4 accent-brand-600" />
+            Usuario activo
+          </label>
+        }
+
+        @if (formError()) {
+          <div class="rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700">
+            {{ formError() }}
+          </div>
+        }
+
+        <div class="flex justify-end gap-2 border-t border-stone-100 pt-4">
+          <button
+            type="button"
+            (click)="closeForm()"
+            [disabled]="saving()"
+            class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="saving()"
+            class="rounded-2xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700 disabled:opacity-50"
+          >
+            {{ saving() ? 'Guardando...' : editingUser() ? 'Guardar cambios' : 'Crear usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

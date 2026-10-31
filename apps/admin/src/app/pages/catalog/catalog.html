@@ -99,6 +99,18 @@
   >
     Categorías ({{ categories().length }})
   </button>
+  <button
+    type="button"
+    (click)="setTab('modifiers')"
+    [ngClass]="
+      activeTab() === 'modifiers'
+        ? 'bg-charcoal text-white shadow-sm'
+        : 'bg-white text-stone-600 hover:bg-stone-100'
+    "
+    class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold transition"
+  >
+    Modificadores ({{ groups().length }})
+  </button>
 </div>
 
 @if (loading()) {
@@ -244,7 +256,7 @@
       </table>
     </div>
   </section>
-} @else {
+} @else if (activeTab() === 'categories') {
   <section class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
     @for (category of categories(); track category.id) {
       <article class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
@@ -294,6 +306,73 @@
         }
       </div>
     }
+  </section>
+} @else {
+  <section class="mt-5">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-lg font-black text-charcoal">Grupos de modificadores</h2>
+        <p class="mt-0.5 text-sm text-stone-500">
+          Defina tamaños, extras u opciones que luego se asocian a productos.
+        </p>
+      </div>
+      @if (canManage()) {
+        <button
+          type="button"
+          (click)="openCreateModifierGroup()"
+          class="self-start rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 sm:self-auto"
+        >
+          Nuevo grupo
+        </button>
+      }
+    </div>
+
+    <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      @for (group of groups(); track group.id) {
+        <article class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-lg font-black text-charcoal">{{ group.nombre }}</p>
+              <p class="mt-1 text-xs text-stone-400">
+                {{ group.tipo === 'unico' ? 'Elige 1' : 'Múltiple' }} ·
+                {{ group.obligatorio ? 'Obligatorio' : 'Opcional' }}
+              </p>
+            </div>
+            <span class="rounded-full bg-mustard-100 px-2 py-0.5 text-[10px] font-bold text-mustard-800">
+              {{ group.modificadores.length }} opciones
+            </span>
+          </div>
+          <div class="mt-3 space-y-1.5">
+            @for (modifier of group.modificadores; track modifier.id) {
+              <div class="flex items-center justify-between gap-2 rounded-xl bg-stone-50 px-3 py-2">
+                <span class="text-sm text-stone-700">{{ modifier.nombre }}</span>
+                <span class="text-xs font-semibold text-stone-500">
+                  {{ modifier.precioExtra !== '0.00' ? '+ $ ' + money(modifier.precioExtra) : 'Incluido' }}
+                </span>
+              </div>
+            }
+          </div>
+          <p class="mt-3 text-[11px] text-stone-400">
+            Mín. {{ group.minSeleccion }} · Máx. {{ group.maxSeleccion }}
+          </p>
+        </article>
+      } @empty {
+        <div class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white p-10 text-center">
+          <p class="text-sm font-semibold text-stone-600">
+            No hay grupos de modificadores.
+          </p>
+          @if (canManage()) {
+            <button
+              type="button"
+              (click)="openCreateModifierGroup()"
+              class="mt-4 rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700"
+            >
+              Crear el primer grupo
+            </button>
+          }
+        </div>
+      }
+    </div>
   </section>
 }
 
@@ -604,6 +683,183 @@
             class="rounded-2xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {{ savingCategory() ? 'Guardando...' : editingCategory() ? 'Guardar cambios' : 'Crear categoría' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (modifierFormOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    (click)="closeModifierForm()"
+  >
+    <div
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+            Nuevo grupo
+          </p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+            Modificadores
+          </h2>
+          <p class="mt-1 text-sm text-stone-500">
+            Ej. Tamaño, extras o tipo de leche.
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="closeModifierForm()"
+          class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+          aria-label="Cerrar"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form class="mt-5 space-y-4" [formGroup]="modifierForm" (ngSubmit)="saveModifierGroup()">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm font-semibold text-stone-700">
+            Nombre del grupo
+            <input
+              type="text"
+              formControlName="nombre"
+              placeholder="Ej. Tamaño"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+          <label class="block text-sm font-semibold text-stone-700">
+            Tipo
+            <select
+              formControlName="tipo"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            >
+              <option value="unico">Elige 1</option>
+              <option value="multiple">Múltiple</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          <label class="block text-sm font-semibold text-stone-700">
+            Mínimo
+            <input
+              type="number"
+              min="0"
+              formControlName="minSeleccion"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+          <label class="block text-sm font-semibold text-stone-700">
+            Máximo
+            <input
+              type="number"
+              min="1"
+              formControlName="maxSeleccion"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+          <label class="block text-sm font-semibold text-stone-700">
+            Orden
+            <input
+              type="number"
+              min="0"
+              formControlName="orden"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm font-semibold text-stone-700">
+          <input type="checkbox" formControlName="obligatorio" class="h-4 w-4 accent-brand-600" />
+          Obligatorio
+        </label>
+
+        <div>
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-semibold text-stone-700">Opciones</p>
+            <button
+              type="button"
+              (click)="addModifierRow()"
+              class="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-bold text-stone-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+            >
+              Agregar opción
+            </button>
+          </div>
+
+          <div class="mt-2 space-y-2" formArrayName="modificadores">
+            @for (row of modifierForm.controls.modificadores.controls; track row; let i = $index) {
+              <div [formGroupName]="i" class="grid gap-2 rounded-2xl bg-stone-50 p-3 sm:grid-cols-[1fr_120px_110px_32px]">
+                <input
+                  type="text"
+                  formControlName="nombre"
+                  placeholder="Nombre de la opción"
+                  class="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-charcoal outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+                />
+                <select
+                  formControlName="tipo"
+                  class="rounded-xl border border-stone-300 bg-white px-2 py-2 text-xs text-charcoal outline-none focus:border-brand-500"
+                >
+                  <option value="agregar">Agregar</option>
+                  <option value="quitar">Quitar</option>
+                  <option value="nota">Nota</option>
+                </select>
+                <input
+                  type="text"
+                  inputmode="decimal"
+                  formControlName="precioExtra"
+                  placeholder="0.00"
+                  class="rounded-xl border border-stone-300 bg-white px-2 py-2 text-sm text-charcoal outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+                />
+                <button
+                  type="button"
+                  (click)="removeModifierRow(i)"
+                  class="grid h-8 w-8 place-items-center rounded-lg text-stone-400 transition hover:bg-white hover:text-brand-600"
+                  aria-label="Quitar opción"
+                >
+                  ×
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (modifierError()) {
+          <div class="rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700">
+            {{ modifierError() }}
+          </div>
+        }
+
+        <div class="flex justify-end gap-2 border-t border-stone-100 pt-4">
+          <button
+            type="button"
+            (click)="closeModifierForm()"
+            [disabled]="savingModifier()"
+            class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="savingModifier()"
+            class="rounded-2xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700 disabled:opacity-50"
+          >
+            {{ savingModifier() ? 'Guardando...' : 'Crear grupo' }}
           </button>
         </div>
       </form>

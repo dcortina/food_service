@@ -1,12 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@cafeqr/auth';
 
-const comingSoon = (title: string) => ({
-  loadComponent: () =>
-    import('./pages/coming-soon/coming-soon').then((m) => m.ComingSoonPage),
-  data: { title },
-});
-
 export const appRoutes: Routes = [
   {
     path: 'login',
@@ -24,21 +18,43 @@ export const appRoutes: Routes = [
         loadComponent: () =>
           import('./pages/dashboard/dashboard').then((m) => m.DashboardPage),
       },
-      { path: 'orders', ...comingSoon('Pedidos') },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./pages/orders/orders').then((m) => m.AdminOrdersPage),
+      },
       {
         path: 'catalog',
         loadComponent: () =>
           import('./pages/catalog/catalog').then((m) => m.CatalogPage),
       },
-      { path: 'tables', ...comingSoon('Mesas y códigos QR') },
-      { path: 'cash', ...comingSoon('Caja') },
-      { path: 'payments', ...comingSoon('Pagos') },
+      {
+        path: 'tables',
+        loadComponent: () =>
+          import('./pages/tables/tables').then((m) => m.TablesPage),
+      },
+      {
+        path: 'cash',
+        loadComponent: () =>
+          import('./pages/cash/cash').then((m) => m.AdminCashPage),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./pages/payments/payments').then(
+            (m) => m.AdminPaymentsPage,
+          ),
+      },
       {
         path: 'couriers',
         loadComponent: () =>
           import('./pages/couriers/couriers').then((m) => m.CouriersPage),
       },
-      { path: 'users', ...comingSoon('Usuarios y roles') },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./pages/users/users').then((m) => m.UsersPage),
+      },
       {
         path: 'reports',
         loadComponent: () =>

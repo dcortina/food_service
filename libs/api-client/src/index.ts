@@ -11,3 +11,4 @@ export * from './lib/public-orders.api';
 export * from './lib/reports.api';
 export * from './lib/settings.api';
 export * from './lib/tables.api';
+export * from './lib/users.api';

@@ -5,7 +5,7 @@
 - **Branch:** `feat/admin-operations`
 - **Delivery strategy:** `ask-on-risk`
 - **Test runner:** `corepack pnpm nx build admin` plus HTTP report/CSV checks.
-- **Status:** In progress — verification and commit.
+- **Status:** Done — committed on `feat/admin-operations`.
 
 ## Specs
 
@@ -54,7 +54,7 @@ page.
 - **T2** — Reports page with range, KPIs, tables, and cash close. `S1`–`S3`. Done.
 - **T3** — CSV download UX. `S4`. Done.
 - **T4** — Build and HTTP verification. Done.
-- **T5** — Commit. In progress.
+- **T5** — Commit. Done.
 
 ## Log
 
@@ -83,4 +83,4 @@ Merged `feat/frontend-foundation` into `main` at `ed98e09` and pushed. Started
   - Sales CSV with `text/csv` and the expected headers.
 - No browser was available; validation was build + HTTP.
 
-Commit: pending.
+Commit: `61b6891` (`feat(admin): add reports page and CSV exports`).

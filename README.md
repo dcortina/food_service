@@ -94,6 +94,11 @@ Product prices use the active currencies from `/api/v1/catalog/currencies`.
 cashier, and courier, plus the open cash-close summary. CSV downloads require
 `reporte.exportar`.
 
+The admin also includes read-only **Pedidos** and **Caja** views, **Pagos** for
+verify/concile/void, **Mesas y QR** for table and QR management, **Usuarios** for
+team management, **Repartidores** for courier liquidations, and modifier-group
+creation inside **Catálogo**.
+
 ## Workspace layout
 
 ```text
