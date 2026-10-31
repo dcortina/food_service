@@ -5,7 +5,7 @@
 - **Branch:** `feat/admin-operations`
 - **Delivery strategy:** `ask-on-risk`
 - **Test runner:** `corepack pnpm nx build api`, `admin`, plus HTTP checks.
-- **Status:** In progress — verification and commit.
+- **Status:** Done — committed on `feat/admin-operations`, pending review/merge.
 
 ## Specs
 
