@@ -2,8 +2,8 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '@cafeqr/auth';
 import { SettingsApi } from '@cafeqr/api-client';
-import { BrandingService } from '../../core/branding.service';
-import { BrandMark } from '../../shared/brand-mark';
+import { BrandingService } from '@cafeqr/config';
+import { BrandMark } from '@cafeqr/ui';
 
 const MAX_LOGO_BYTES = 48 * 1024;
 

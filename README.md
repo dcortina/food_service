@@ -52,13 +52,17 @@ pnpm nx serve api
 
 # 6. Start a frontend (example: admin)
 pnpm nx serve admin
+
+# Cashier POS (port 4201)
+pnpm nx serve pos --port 4201
 ```
 
 The API runs at `http://localhost:3000/api/v1` and Swagger at
 `http://localhost:3000/api/docs`.
 
-The admin app runs at `http://localhost:4200` and proxies `/api` to the API. Demo
-login: `owner` / `CafeQR123!`.
+The admin app runs at `http://localhost:4200` and the cashier POS at
+`http://localhost:4201`; both proxy `/api` to the API. Demo logins:
+`owner` / `CafeQR123!` for the admin and `cajero` / `CafeQR123!` for the POS.
 
 The business name and logo are managed in **Administración → Configuración**. The
 login page reads the public branding from `/api/v1/public/branding`, so the same
@@ -78,9 +82,9 @@ apps/
 libs/
   shared/         Domain enums, constants, pure helpers
   api-client/     Typed HTTP client (OpenAPI generation planned)
-  ui/             Design system (planned)
+  ui/             Shared UI primitives (brand mark)
   auth/           Angular auth services, interceptor, and guards
-  config/         Runtime configuration helpers (planned)
+  config/         Runtime branding and configuration services
 prisma/           Schema, migrations, seed
 docs/             Architecture and ADRs
 odd/              Feature documents and work logs

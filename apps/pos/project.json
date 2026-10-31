@@ -56,6 +56,9 @@
       },
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
+      "options": {
+        "proxyConfig": "apps/pos/proxy.conf.json"
+      },
       "configurations": {
         "production": {
           "buildTarget": "pos:build:production"

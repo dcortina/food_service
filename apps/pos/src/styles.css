@@ -1,1 +1,99 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@source "./app/**/*.{html,ts}";
+@source "../../../libs/ui/src/**/*.{ts,html}";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+
+  --color-brand-50: #fff1f0;
+  --color-brand-100: #ffe0dd;
+  --color-brand-200: #ffc2bd;
+  --color-brand-300: #ff9a91;
+  --color-brand-400: #ff6b5e;
+  --color-brand-500: #f04438;
+  --color-brand-600: #d92d20;
+  --color-brand-700: #b42318;
+  --color-brand-800: #912018;
+  --color-brand-900: #7a271a;
+
+  --color-mustard-50: #fffbeb;
+  --color-mustard-100: #fef3c7;
+  --color-mustard-200: #fde68a;
+  --color-mustard-300: #fcd34d;
+  --color-mustard-400: #fbbf24;
+  --color-mustard-500: #f59e0b;
+  --color-mustard-600: #d97706;
+  --color-mustard-700: #b45309;
+  --color-mustard-800: #92400e;
+  --color-mustard-900: #78350f;
+
+  --color-cream: #fff8ec;
+  --color-charcoal: #1c1917;
+  --color-lettuce: #16a34a;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-mustard-200);
+  color: var(--color-charcoal);
+}
+
+.bg-dots {
+  background-image: radial-gradient(
+    rgba(120, 53, 15, 0.09) 1px,
+    transparent 1px
+  );
+  background-size: 18px 18px;
+}
+
+.pos-login-bg {
+  background-color: #1c1917;
+  background-image:
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(217, 45, 32, 0.35),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(251, 191, 36, 0.2),
+      transparent 40%
+    );
+}
+
+.pos-tab {
+  color: #d6d3d1;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.pos-tab:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.pos-tab.pos-tab-active {
+  background-color: var(--color-mustard-400);
+  color: var(--color-charcoal);
+}
+
+.pos-tab.pos-tab-active:hover {
+  background-color: var(--color-mustard-300);
+  color: var(--color-charcoal);
+}

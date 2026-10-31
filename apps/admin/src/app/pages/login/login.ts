@@ -2,8 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@cafeqr/auth';
-import { BrandingService } from '../../core/branding.service';
-import { BrandMark } from '../../shared/brand-mark';
+import { BrandingService } from '@cafeqr/config';
+import { BrandMark } from '@cafeqr/ui';
 import { BurgerHero } from '../../shared/burger-hero';
 
 @Component({

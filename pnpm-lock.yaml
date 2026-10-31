@@ -316,7 +316,11 @@ importers:
 
   libs/auth: {}
 
+  libs/config: {}
+
   libs/shared: {}
+
+  libs/ui: {}
 
 packages:
 

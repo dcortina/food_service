@@ -18,6 +18,16 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
+export interface Paginated<T> {
+  data: T[];
+  meta: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface PublicBranding {
   nombre: string;
   logoUrl: string | null;

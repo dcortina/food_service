@@ -1,0 +1,628 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600">
+      Mostrador
+    </p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-charcoal">
+      Nuevo pedido
+    </h1>
+    <p class="mt-1 text-sm text-stone-500">
+      Armá el pedido, confirmalo y mandalo a cocina.
+    </p>
+  </div>
+  <div
+    class="inline-flex items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-500 shadow-sm sm:self-auto"
+  >
+    <span class="h-1.5 w-1.5 rounded-full bg-lettuce"></span>
+    {{ products().length }} productos disponibles
+  </div>
+</div>
+
+@if (!canCreate()) {
+  <div
+    class="mt-6 rounded-3xl border border-stone-200 bg-white p-8 text-center shadow-sm"
+  >
+    <div
+      class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-brand-600"
+    >
+      <svg
+        class="h-7 w-7"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path
+          d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75M6.75 21h10.5a2.25 2.25 0 002.25-2.25V10.5H4.5v8.25A2.25 2.25 0 006.75 21z"
+        />
+      </svg>
+    </div>
+    <h2 class="mt-4 text-lg font-bold text-charcoal">Acceso restringido</h2>
+    <p class="mx-auto mt-2 max-w-md text-sm text-stone-500">
+      Su usuario no tiene permiso para crear pedidos. Pida al dueño o gerente
+      que le habilite <code>pedido.crear</code>.
+    </p>
+  </div>
+} @else {
+  @if (lastOrder(); as order) {
+    <section
+      class="mt-5 overflow-hidden rounded-3xl border border-lettuce/20 bg-white shadow-sm"
+    >
+      <div
+        class="flex flex-col gap-4 bg-lettuce/10 p-5 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-lettuce text-white shadow-lg shadow-lettuce/20"
+          >
+            <svg
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-lettuce">
+              Pedido confirmado
+            </p>
+            <p class="text-2xl font-black tracking-tight text-charcoal">
+              {{ order.codigoPublico }}
+            </p>
+            <p class="text-sm text-stone-600">
+              {{ order.mesa ? 'Mesa ' + order.mesa.numero : order.canal }} ·
+              $ {{ money(order.total) }} · {{ formatTime(order.creadoEn) }}
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          @if (order.estadoPago !== 'pagado') {
+            <button
+              type="button"
+              (click)="openPayment()"
+              class="rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+            >
+              Cobrar $ {{ money(order.total) }}
+            </button>
+          } @else {
+            <span
+              class="inline-flex items-center gap-1.5 rounded-2xl bg-lettuce/10 px-3 py-2.5 text-sm font-bold text-lettuce"
+            >
+              <span class="h-1.5 w-1.5 rounded-full bg-lettuce"></span>
+              Pagado
+            </span>
+          }
+          <button
+            type="button"
+            (click)="startNewOrder()"
+            class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+          >
+            Nuevo pedido
+          </button>
+          <a
+            routerLink="/orders"
+            class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+          >
+            Ver pedidos
+          </a>
+        </div>
+      </div>
+    </section>
+  }
+
+  <div class="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
+    <section class="min-w-0">
+      <div class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="relative flex-1">
+            <svg
+              class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+            </svg>
+            <input
+              type="search"
+              [value]="search()"
+              (input)="setSearch($event)"
+              placeholder="Buscar producto..."
+              class="block w-full rounded-2xl border border-stone-300 bg-stone-50 py-2.5 pl-9 pr-3.5 text-sm text-charcoal outline-none transition placeholder:text-stone-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10"
+            />
+          </div>
+          <span class="text-xs font-medium text-stone-400">
+            {{ filteredProducts().length }} resultados
+          </span>
+        </div>
+
+        <div class="mt-4 flex gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            (click)="selectCategory(null)"
+            [ngClass]="
+              selectedCategoryId() === null
+                ? 'bg-charcoal text-white shadow-sm'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            "
+            class="whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-bold transition"
+          >
+            Todo
+          </button>
+          @for (category of categories(); track category.id) {
+            <button
+              type="button"
+              (click)="selectCategory(category.id)"
+              [ngClass]="
+                selectedCategoryId() === category.id
+                  ? 'bg-charcoal text-white shadow-sm'
+                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+              "
+              class="whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-bold transition"
+            >
+              {{ category.nombre }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (loadingCatalog()) {
+        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
+            <div class="h-40 animate-pulse rounded-3xl border border-stone-200 bg-white"></div>
+          }
+        </div>
+      } @else if (catalogError()) {
+        <div class="mt-4 rounded-3xl border border-brand-200 bg-white p-6 text-center shadow-sm">
+          <p class="text-sm font-semibold text-brand-700">{{ catalogError() }}</p>
+          <button
+            type="button"
+            (click)="loadCatalog()"
+            class="mt-4 rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700"
+          >
+            Reintentar
+          </button>
+        </div>
+      } @else {
+        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          @for (product of filteredProducts(); track product.id) {
+            <button
+              type="button"
+              (click)="openProduct(product)"
+              [disabled]="!product.disponible"
+              class="group flex h-full flex-col rounded-3xl border border-stone-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <span
+                  class="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700"
+                  >{{ product.categoria.nombre }}</span
+                >
+                @if (product.gruposModificadores.length) {
+                  <span
+                    class="rounded-full bg-mustard-100 px-2 py-0.5 text-[10px] font-bold text-mustard-800"
+                    >Personalizable</span
+                  >
+                }
+              </div>
+              <p class="mt-3 text-sm font-bold leading-snug text-charcoal">
+                {{ product.nombre }}
+              </p>
+              <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-500">
+                {{ product.descripcion || 'Sin descripción' }}
+              </p>
+              <div class="mt-auto flex items-end justify-between pt-4">
+                <span class="text-lg font-black text-charcoal"
+                  >$ {{ money(productPrice(product)) }}</span
+                >
+                <span
+                  class="grid h-8 w-8 place-items-center rounded-full bg-charcoal text-lg font-light text-white transition group-hover:bg-brand-600"
+                  >+</span
+                >
+              </div>
+            </button>
+          } @empty {
+            <div
+              class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white p-10 text-center"
+            >
+              <p class="text-sm font-semibold text-stone-600">
+                No hay productos para esta búsqueda.
+              </p>
+              <p class="mt-1 text-xs text-stone-400">
+                Probá con otra categoría o limpiá el buscador.
+              </p>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <aside class="min-w-0">
+      <div class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5 xl:sticky xl:top-4">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-600">
+              Pedido actual
+            </p>
+            <h2 class="text-lg font-black text-charcoal">
+              {{ cartCount() }} {{ cartCount() === 1 ? 'ítem' : 'ítems' }}
+            </h2>
+          </div>
+          @if (cart().length) {
+            <button
+              type="button"
+              (click)="clearCart()"
+              class="text-xs font-bold text-stone-400 transition hover:text-brand-600"
+            >
+              Limpiar
+            </button>
+          }
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          @for (option of serviceOptions; track option.value) {
+            <button
+              type="button"
+              (click)="setServiceType(option.value)"
+              [ngClass]="
+                serviceType() === option.value
+                  ? 'bg-charcoal text-white shadow-sm'
+                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+              "
+              class="rounded-2xl px-3 py-2.5 text-xs font-bold transition"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+
+        @if (serviceType() === 'mesa') {
+          <div class="mt-4">
+            <label class="block text-xs font-bold uppercase tracking-wide text-stone-400">
+              Mesa
+              <select
+                [ngModel]="selectedTableId()"
+                (ngModelChange)="selectedTableId.set($event)"
+                class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-medium text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              >
+                <option [ngValue]="null">Seleccione una mesa libre</option>
+                @for (group of tableGroups(); track group.zone) {
+                  <optgroup [label]="group.zone">
+                    @for (table of group.tables; track table.id) {
+                      <option [ngValue]="table.id">
+                        Mesa {{ table.numero }} · {{ table.capacidad }} pax
+                      </option>
+                    }
+                  </optgroup>
+                }
+              </select>
+            </label>
+            @if (loadingTables()) {
+              <p class="mt-1.5 text-[11px] text-stone-400">Cargando mesas...</p>
+            } @else if (tableGroups().length === 0) {
+              <p class="mt-1.5 text-[11px] text-brand-600">
+                No hay mesas libres en este momento.
+              </p>
+            }
+          </div>
+        }
+
+        @if (serviceType() === 'domicilio') {
+          <div class="mt-4 space-y-2">
+            <input
+              type="text"
+              [ngModel]="customerName()"
+              (ngModelChange)="customerName.set($event)"
+              placeholder="Nombre del cliente"
+              class="block w-full rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+            <input
+              type="tel"
+              [ngModel]="customerPhone()"
+              (ngModelChange)="customerPhone.set($event)"
+              placeholder="Teléfono"
+              class="block w-full rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+            <input
+              type="text"
+              [ngModel]="customerAddress()"
+              (ngModelChange)="customerAddress.set($event)"
+              placeholder="Dirección de entrega"
+              class="block w-full rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </div>
+        }
+
+        @if (serviceType() === 'mostrador' || serviceType() === 'para_llevar') {
+          <input
+            type="text"
+            [ngModel]="customerName()"
+            (ngModelChange)="customerName.set($event)"
+            placeholder="Nombre del cliente (opcional)"
+            class="mt-4 block w-full rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          />
+        }
+
+        <div class="mt-4 space-y-2">
+          @for (item of cart(); track item.key) {
+            <div class="rounded-2xl border border-stone-100 bg-stone-50 p-3">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-charcoal">
+                    {{ item.product.nombre }}
+                  </p>
+                  @if (item.modificadores.length) {
+                    <p class="mt-0.5 text-[11px] leading-snug text-stone-500">
+                      {{ modifierNames(item) }}
+                    </p>
+                  }
+                  @if (item.notas) {
+                    <p class="mt-0.5 text-[11px] italic text-stone-400">
+                      “{{ item.notas }}”
+                    </p>
+                  }
+                </div>
+                <button
+                  type="button"
+                  (click)="removeItem(item)"
+                  class="rounded-lg p-1 text-stone-300 transition hover:bg-white hover:text-brand-600"
+                  aria-label="Quitar producto"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="mt-2 flex items-center justify-between">
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    (click)="changeQuantity(item, -1)"
+                    class="grid h-7 w-7 place-items-center rounded-lg bg-white text-sm font-bold text-stone-600 shadow-sm transition hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    −
+                  </button>
+                  <span class="w-6 text-center text-sm font-bold text-charcoal">{{
+                    item.cantidad
+                  }}</span>
+                  <button
+                    type="button"
+                    (click)="changeQuantity(item, 1)"
+                    class="grid h-7 w-7 place-items-center rounded-lg bg-white text-sm font-bold text-stone-600 shadow-sm transition hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    +
+                  </button>
+                </div>
+                <span class="text-sm font-black text-charcoal"
+                  >$ {{ money(item.total) }}</span
+                >
+              </div>
+            </div>
+          } @empty {
+            <div class="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-6 text-center">
+              <p class="text-sm font-semibold text-stone-500">
+                El pedido está vacío
+              </p>
+              <p class="mt-1 text-xs text-stone-400">
+                Tocá un producto para agregarlo.
+              </p>
+            </div>
+          }
+        </div>
+
+        @if (cart().length) {
+          <label class="mt-4 block text-xs font-bold uppercase tracking-wide text-stone-400">
+            Notas del pedido
+            <textarea
+              rows="2"
+              [ngModel]="orderNotes()"
+              (ngModelChange)="orderNotes.set($event)"
+              placeholder="Sin cebolla, cubiertos, etc."
+              class="mt-1.5 block w-full resize-none rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-normal text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            ></textarea>
+          </label>
+
+          <div class="mt-4 space-y-1 border-t border-dashed border-stone-200 pt-3">
+            <div class="flex items-center justify-between text-sm text-stone-500">
+              <span>Subtotal</span>
+              <span>$ {{ money(subtotal()) }}</span>
+            </div>
+            <div class="flex items-center justify-between text-lg font-black text-charcoal">
+              <span>Total</span>
+              <span>$ {{ money(subtotal()) }}</span>
+            </div>
+          </div>
+        }
+
+        @if (error()) {
+          <div
+            class="mt-3 rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700"
+            role="alert"
+          >
+            {{ error() }}
+          </div>
+        }
+
+        <button
+          type="button"
+          (click)="submit()"
+          [disabled]="!canSubmit()"
+          class="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          @if (saving()) {
+            <span
+              class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+            ></span>
+            Confirmando...
+          } @else {
+            Confirmar pedido
+          }
+        </button>
+        <p class="mt-2 text-center text-[11px] text-stone-400">
+          Se envía a cocina y se imprime la comanda.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  @if (selectedProduct(); as product) {
+    <div
+      class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      (click)="closeProduct()"
+    >
+      <div
+        class="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+              {{ product.categoria.nombre }}
+            </p>
+            <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+              {{ product.nombre }}
+            </h2>
+            <p class="mt-1 text-sm text-stone-500">
+              $ {{ money(productPrice(product)) }} base
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="closeProduct()"
+            class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+            aria-label="Cerrar"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        @for (group of product.gruposModificadores; track group.id) {
+          <div class="mt-5">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-sm font-bold text-charcoal">{{ group.nombre }}</p>
+              <span
+                class="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                [ngClass]="
+                  group.obligatorio
+                    ? 'bg-brand-50 text-brand-700'
+                    : 'bg-stone-100 text-stone-500'
+                "
+              >
+                {{ group.obligatorio ? 'Obligatorio' : 'Opcional' }} ·
+                {{ group.tipo === 'unico' ? 'Elegí 1' : 'Hasta ' + group.maxSeleccion }}
+              </span>
+            </div>
+            <div class="mt-2 space-y-2">
+              @for (modifier of group.modificadores; track modifier.id) {
+                <label
+                  class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border p-3 transition"
+                  [class.border-brand-400]="isModifierSelected(group.id, modifier.id)"
+                  [class.bg-brand-50]="isModifierSelected(group.id, modifier.id)"
+                  [class.border-stone-200]="!isModifierSelected(group.id, modifier.id)"
+                >
+                  <span class="flex items-center gap-3">
+                    <input
+                      [type]="group.tipo === 'unico' ? 'radio' : 'checkbox'"
+                      [name]="group.id"
+                      [checked]="isModifierSelected(group.id, modifier.id)"
+                      (change)="toggleModifier(group, modifier.id)"
+                      class="h-4 w-4 accent-brand-600"
+                    />
+                    <span class="text-sm font-medium text-charcoal">{{
+                      modifier.nombre
+                    }}</span>
+                  </span>
+                  @if (modifier.precioExtra !== '0.00') {
+                    <span class="text-xs font-bold text-stone-500"
+                      >+ $ {{ money(modifier.precioExtra) }}</span
+                    >
+                  }
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <label class="mt-5 block text-xs font-bold uppercase tracking-wide text-stone-400">
+          Notas para cocina
+          <textarea
+            rows="2"
+            [ngModel]="productNotes()"
+            (ngModelChange)="productNotes.set($event)"
+            placeholder="Sin azúcar, bien caliente, etc."
+            class="mt-1.5 block w-full resize-none rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-normal text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          ></textarea>
+        </label>
+
+        @if (modifierError()) {
+          <p class="mt-2 text-xs font-medium text-brand-700">{{ modifierError() }}</p>
+        } @else if (!canAddSelectedProduct()) {
+          <p class="mt-2 text-xs font-medium text-stone-400">
+            Complete las opciones obligatorias para continuar.
+          </p>
+        }
+
+        <div class="mt-5 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-1 rounded-2xl bg-stone-100 p-1">
+            <button
+              type="button"
+              (click)="decrementProductQuantity()"
+              class="grid h-8 w-8 place-items-center rounded-xl bg-white text-sm font-bold text-stone-600 shadow-sm transition hover:text-brand-700"
+            >
+              −
+            </button>
+            <span class="w-7 text-center text-sm font-black text-charcoal">{{
+              productQuantity()
+            }}</span>
+            <button
+              type="button"
+              (click)="incrementProductQuantity()"
+              class="grid h-8 w-8 place-items-center rounded-xl bg-white text-sm font-bold text-stone-600 shadow-sm transition hover:text-brand-700"
+            >
+              +
+            </button>
+          </div>
+          <button
+            type="button"
+            (click)="addSelectedProduct()"
+            [disabled]="!canAddSelectedProduct()"
+            class="flex-1 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Agregar · $ {{ money(selectedProductTotal()) }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (paymentOpen()) {
+    @if (lastOrder(); as order) {
+      <app-payment-dialog
+        [order]="order"
+        (paid)="onPaymentCompleted($event)"
+        (closed)="onPaymentClosed()"
+      />
+    }
+  }
+}
