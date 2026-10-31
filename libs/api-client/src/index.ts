@@ -2,6 +2,7 @@ export * from './lib/api.types';
 export * from './lib/auth.api';
 export * from './lib/cash.api';
 export * from './lib/catalog.api';
+export * from './lib/delivery.api';
 export * from './lib/kds.api';
 export * from './lib/orders.api';
 export * from './lib/payments.api';

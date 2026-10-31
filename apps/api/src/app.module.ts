@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { CashModule } from './cash/cash.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { AuditModule } from './common/audit/audit.module';
+import { DeliveryModule } from './delivery/delivery.module';
 import { HealthModule } from './health/health.module';
 import { KdsModule } from './kds/kds.module';
 import { OrdersModule } from './orders/orders.module';
@@ -28,6 +29,7 @@ import { UsersModule } from './users/users.module';
     OrdersModule,
     KdsModule,
     CashModule,
+    DeliveryModule,
     PrintModule,
     ReportsModule,
     SettingsModule,
