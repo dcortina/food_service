@@ -456,20 +456,27 @@
         <p class="mt-2 text-xs text-brand-700">{{ qrError() }}</p>
       }
 
-      <div class="mt-4 flex gap-2">
+      <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
         <button
           type="button"
           (click)="copyQrLink()"
-          class="flex-1 rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50"
+          class="rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50"
         >
           Copiar link
         </button>
         <button
           type="button"
           (click)="downloadQr()"
-          class="flex-1 rounded-2xl bg-brand-600 px-3 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700"
+          class="rounded-2xl border border-stone-300 bg-white px-3 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50"
         >
           Descargar PNG
+        </button>
+        <button
+          type="button"
+          (click)="printQr()"
+          class="rounded-2xl bg-brand-600 px-3 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700"
+        >
+          Imprimir / PDF
         </button>
       </div>
     </div>

@@ -39,11 +39,13 @@ export class KdsBoardPage implements OnInit, OnDestroy {
   readonly busyItems = signal<Set<string>>(new Set());
   readonly busyOrders = signal<Set<string>>(new Set());
   readonly now = signal(Date.now());
+  readonly soundEnabled = signal(true);
+  readonly alerted = signal<Set<string>>(new Set());
 
-  private readonly clockTimer = setInterval(
-    () => this.now.set(Date.now()),
-    30_000,
-  );
+  private readonly clockTimer = setInterval(() => {
+    this.now.set(Date.now());
+    this.checkAlerts();
+  }, 30_000);
 
   readonly columns = computed(() => [
     {
@@ -106,6 +108,7 @@ export class KdsBoardPage implements OnInit, OnDestroy {
         this.orders.set(orders);
         this.loading.set(false);
         this.refreshing.set(false);
+        this.checkAlerts();
       },
       error: () => {
         this.error.set('No se pudieron cargar los pedidos de cocina.');
@@ -179,6 +182,74 @@ export class KdsBoardPage implements OnInit, OnDestroy {
 
   isOrderBusy(orderId: string): boolean {
     return this.busyOrders().has(orderId);
+  }
+
+  toggleSound(): void {
+    this.soundEnabled.update((enabled) => !enabled);
+
+    if (this.soundEnabled()) {
+      this.checkAlerts();
+    }
+  }
+
+  private checkAlerts(): void {
+    if (!this.soundEnabled()) {
+      return;
+    }
+
+    const alerted = this.alerted();
+    const fresh = this.orders().filter(
+      (order) =>
+        !alerted.has(order.id) &&
+        this.elapsed(order) > (order.etaMinutos ?? 10),
+    );
+
+    if (!fresh.length) {
+      return;
+    }
+
+    this.alerted.update((current) => {
+      const next = new Set(current);
+      fresh.forEach((order) => next.add(order.id));
+      return next;
+    });
+    this.playAlert();
+  }
+
+  private playAlert(): void {
+    try {
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
+
+      if (!AudioContextClass) {
+        return;
+      }
+
+      const context = new AudioContextClass();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(
+        0.08,
+        context.currentTime + 0.01,
+      );
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        context.currentTime + 0.35,
+      );
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.4);
+      window.setTimeout(() => void context.close(), 500);
+    } catch {
+      // Audio is an enhancement; never break the board.
+    }
   }
 
   allReady(order: KdsOrder): boolean {

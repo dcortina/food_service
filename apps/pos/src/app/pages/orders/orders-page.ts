@@ -220,7 +220,7 @@ export class OrdersPage implements OnInit {
     this.orders.update((orders) =>
       orders.map((order) =>
         order.id === payment.pedido.id
-          ? { ...order, estadoPago: 'pagado' }
+          ? { ...order, estadoPago: payment.pedido.estadoPago }
           : order,
       ),
     );

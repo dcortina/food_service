@@ -70,8 +70,15 @@ export interface Order {
   impuesto: string;
   total: string;
   notas: string | null;
+  etaMinutos: number;
   creadoEn: string;
   items: OrderItem[];
+  pagos: Array<{
+    id: string;
+    metodo: string;
+    estado: string;
+    monto: string;
+  }>;
 }
 
 export interface ListOrdersParams {

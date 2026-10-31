@@ -67,7 +67,8 @@ Listo → Entregado as staff advance the order; the tracking survives a refresh.
 - The menu is mobile-first, installable through a web manifest, and uses the
   shared food-service visual language.
 - A web manifest and SVG icon are served.
-- Full offline caching/service worker is deferred; ordering requires network.
+- A basic service worker caching the shell and GET responses was added in the
+  frontend polish slice; ordering still requires network.
 
 **Acceptance:** the manifest and icon load, and the menu remains usable on a
 phone viewport.

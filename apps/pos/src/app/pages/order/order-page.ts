@@ -54,6 +54,10 @@ export class OrderPage implements OnInit {
     this.auth.hasPermission(PERMISSIONS.PEDIDO_CREAR),
   );
 
+  readonly canDiscount = computed(() =>
+    this.auth.hasPermission(PERMISSIONS.PEDIDO_DESCUENTO),
+  );
+
   readonly categories = signal<Category[]>([]);
   readonly products = signal<Product[]>([]);
   readonly tables = signal<RestaurantTable[]>([]);
@@ -64,11 +68,15 @@ export class OrderPage implements OnInit {
   readonly search = signal('');
   readonly selectedCategoryId = signal<string | null>(null);
   readonly serviceType = signal<TipoServicio>('mostrador');
+  readonly channelOverride = signal<
+    '' | 'whatsapp' | 'instagram' | 'facebook'
+  >('');
   readonly selectedTableId = signal<string | null>(null);
   readonly customerName = signal('');
   readonly customerPhone = signal('');
   readonly customerAddress = signal('');
   readonly orderNotes = signal('');
+  readonly discount = signal('');
 
   readonly cart = signal<CartItem[]>([]);
   readonly selectedProduct = signal<Product | null>(null);
@@ -131,6 +139,17 @@ export class OrderPage implements OnInit {
 
   readonly subtotal = computed(() =>
     this.cart().reduce((sum, item) => sum + item.total, 0),
+  );
+
+  readonly discountValue = computed(() =>
+    Math.min(
+      Math.max(0, Number(this.discount() || 0)),
+      this.subtotal(),
+    ),
+  );
+
+  readonly total = computed(() =>
+    Math.max(0, this.subtotal() - this.discountValue()),
   );
 
   readonly selectedModifierObjects = computed(() => {
@@ -241,6 +260,8 @@ export class OrderPage implements OnInit {
 
     if (type !== 'mesa') {
       this.selectedTableId.set(null);
+    } else {
+      this.channelOverride.set('');
     }
 
     this.error.set(null);
@@ -406,6 +427,7 @@ export class OrderPage implements OnInit {
   clearCart(): void {
     this.cart.set([]);
     this.orderNotes.set('');
+    this.discount.set('');
   }
 
   submit(): void {
@@ -430,7 +452,7 @@ export class OrderPage implements OnInit {
       return;
     }
 
-    const canal: CanalPedido =
+    const defaultChannel: CanalPedido =
       service === 'mesa'
         ? 'mesa_mesero'
         : service === 'domicilio'
@@ -438,6 +460,16 @@ export class OrderPage implements OnInit {
           : service === 'para_llevar'
             ? 'para_llevar'
             : 'mostrador';
+    const canal: CanalPedido =
+      service !== 'mesa' && this.channelOverride()
+        ? (this.channelOverride() as CanalPedido)
+        : defaultChannel;
+    const discountValue = this.discountValue();
+
+    if (Number(this.discount() || 0) > this.subtotal() + 0.001) {
+      this.error.set('El descuento no puede superar el subtotal.');
+      return;
+    }
 
     const payload: CreateOrderPayload = {
       canal,
@@ -471,6 +503,9 @@ export class OrderPage implements OnInit {
           }
         : {}),
       ...(this.orderNotes().trim() ? { notas: this.orderNotes().trim() } : {}),
+      ...(this.canDiscount() && discountValue > 0
+        ? { descuento: discountValue.toFixed(2) }
+        : {}),
       idempotencyKey: this.idempotencyKey,
     };
 
@@ -490,6 +525,8 @@ export class OrderPage implements OnInit {
           this.customerName.set('');
           this.customerPhone.set('');
           this.customerAddress.set('');
+          this.channelOverride.set('');
+          this.discount.set('');
           this.idempotencyKey = crypto.randomUUID();
           this.saving.set(false);
           this.loadTables();
@@ -512,6 +549,8 @@ export class OrderPage implements OnInit {
     this.customerName.set('');
     this.customerPhone.set('');
     this.customerAddress.set('');
+    this.channelOverride.set('');
+    this.discount.set('');
     this.idempotencyKey = crypto.randomUUID();
     this.error.set(null);
   }
@@ -522,9 +561,11 @@ export class OrderPage implements OnInit {
     }
   }
 
-  onPaymentCompleted(_payment: Payment): void {
+  onPaymentCompleted(payment: Payment): void {
     this.lastOrder.update((order) =>
-      order ? { ...order, estadoPago: 'pagado' } : order,
+      order
+        ? { ...order, estadoPago: payment.pedido.estadoPago }
+        : order,
     );
   }
 

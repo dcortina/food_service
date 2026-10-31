@@ -201,6 +201,69 @@
 
         @if (current.estado === 'abierto') {
           <section class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+            <h2 class="text-lg font-bold text-charcoal">Movimiento de caja</h2>
+            <p class="mt-1 text-sm text-stone-500">
+              Registre ingresos, propinas, ajustes o movimientos autorizados.
+            </p>
+
+            <label class="mt-4 block text-sm font-semibold text-stone-700">
+              Tipo
+              <select
+                [ngModel]="movementType()"
+                (ngModelChange)="movementType.set($event)"
+                class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              >
+                @for (type of movementTypes(); track type.value) {
+                  <option [value]="type.value">{{ type.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="mt-3 block text-sm font-semibold text-stone-700">
+              Monto
+              <input
+                type="number"
+                step="0.01"
+                [ngModel]="movementAmount()"
+                (ngModelChange)="movementAmount.set($event)"
+                placeholder="0.00"
+                class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              />
+            </label>
+
+            <label class="mt-3 block text-sm font-semibold text-stone-700">
+              Motivo
+              <input
+                type="text"
+                [ngModel]="movementReason()"
+                (ngModelChange)="movementReason.set($event)"
+                placeholder="Ej. Compra de hielo"
+                class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+              />
+            </label>
+
+            @if (!canAuthorize()) {
+              <p class="mt-2 text-[11px] text-stone-400">
+                Retiros, gastos y devoluciones requieren autorización de dueño o
+                gerente.
+              </p>
+            }
+
+            @if (movementError()) {
+              <p class="mt-2 text-xs text-brand-700">{{ movementError() }}</p>
+            }
+
+            <button
+              type="button"
+              (click)="submitMovement()"
+              [disabled]="movementBusy()"
+              class="mt-4 w-full rounded-2xl bg-mustard-400 px-4 py-3 text-sm font-bold text-charcoal transition hover:bg-mustard-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {{ movementBusy() ? 'Registrando...' : 'Registrar movimiento' }}
+            </button>
+          </section>
+
+          <section class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
             <h2 class="text-lg font-bold text-charcoal">Cerrar caja</h2>
             <p class="mt-1 text-sm text-stone-500">
               Cuente el efectivo físico antes de cerrar.

@@ -99,6 +99,11 @@ verify/concile/void, **Mesas y QR** for table and QR management, **Usuarios** fo
 team management, **Repartidores** for courier liquidations, and modifier-group
 creation inside **Catálogo**.
 
+POS checkout supports split payments, discounts (with `pedido.descuento`),
+WhatsApp/Instagram/Facebook order origins, and cash movements with authorizer
+handling. The KDS has an audible overdue alert, table QRs can be printed or saved
+as PDF, and the menu has a basic service worker for shell/GET caching.
+
 ## Workspace layout
 
 ```text

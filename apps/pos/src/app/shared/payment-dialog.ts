@@ -40,6 +40,7 @@ export class PaymentDialog implements OnInit {
   readonly floatAmount = signal('0.00');
 
   readonly method = signal<PaymentMethod>('efectivo');
+  readonly amount = signal('');
   readonly received = signal('');
   readonly reference = signal('');
   readonly saving = signal(false);
@@ -49,23 +50,40 @@ export class PaymentDialog implements OnInit {
   private paymentKey = crypto.randomUUID();
 
   readonly total = computed(() => Number(this.order().total));
-  readonly change = computed(() =>
-    Math.max(0, Number(this.received() || 0) - this.total()),
+  readonly paidAmount = computed(() =>
+    this.order()
+      .pagos.filter((payment) => payment.estado !== 'anulado')
+      .reduce((sum, payment) => sum + Number(payment.monto), 0),
   );
+  readonly remaining = computed(() =>
+    Math.max(0, this.total() - this.paidAmount()),
+  );
+  readonly change = computed(() =>
+    Math.max(0, Number(this.received() || 0) - Number(this.amount() || 0)),
+  );
+  readonly paymentAmount = computed(() => Number(this.amount() || 0));
   readonly canPay = computed(() => {
     if (!this.shift() || this.saving() || this.success()) {
       return false;
     }
 
+    if (
+      this.paymentAmount() <= 0 ||
+      this.paymentAmount() > this.remaining() + 0.001
+    ) {
+      return false;
+    }
+
     if (this.method() === 'efectivo') {
-      return Number(this.received() || 0) >= this.total();
+      return Number(this.received() || 0) >= this.paymentAmount();
     }
 
     return this.reference().trim().length >= 3;
   });
 
   ngOnInit(): void {
-    this.received.set(this.order().total);
+    this.amount.set(this.remaining().toFixed(2));
+    this.received.set(this.remaining().toFixed(2));
     this.loadShift();
   }
 
@@ -120,8 +138,17 @@ export class PaymentDialog implements OnInit {
     this.success.set(null);
     this.paymentKey = crypto.randomUUID();
 
-    if (method !== 'efectivo') {
-      this.received.set(this.order().total);
+    if (method === 'efectivo') {
+      this.received.set(this.amount());
+    }
+  }
+
+  setAmount(value: string | number): void {
+    const amount = Number(value);
+    this.amount.set(Number.isFinite(amount) ? amount.toFixed(2) : '0.00');
+
+    if (this.method() === 'efectivo') {
+      this.received.set(this.amount());
     }
   }
 
@@ -138,7 +165,7 @@ export class PaymentDialog implements OnInit {
       .register({
         pedidoId: order.id,
         metodo: this.method(),
-        monto: order.total,
+        monto: this.paymentAmount().toFixed(2),
         ...(this.method() === 'efectivo'
           ? { montoRecibido: Number(this.received()).toFixed(2) }
           : { referenciaExterna: this.reference().trim() }),

@@ -313,6 +313,54 @@ export class TablesPage implements OnInit {
     });
   }
 
+  printQr(): void {
+    const image = this.qrImageUrl();
+    const table = this.qrTable();
+
+    if (!image || !table) {
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=720,height=900');
+
+    if (!printWindow) {
+      this.qrError.set(
+        'El navegador bloqueó la ventana de impresión. Permita ventanas emergentes.',
+      );
+      return;
+    }
+
+    const number = table.numero.replace(/[<>&"]/g, '');
+    const url = (this.qrUrl() ?? '').replace(/[<>&"]/g, '');
+
+    printWindow.document.write(`<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>QR Mesa ${number}</title>
+  <style>
+    @page { margin: 18mm; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1c1917; text-align: center; padding: 24px; }
+    .card { max-width: 360px; margin: 0 auto; border: 2px solid #1c1917; border-radius: 24px; padding: 28px; }
+    h1 { font-size: 28px; margin: 0 0 4px; }
+    p { font-size: 13px; color: #57534e; margin: 6px 0; }
+    img { width: 280px; height: 280px; margin: 18px auto; display: block; }
+    .url { font-size: 10px; word-break: break-all; color: #78716c; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Mesa ${number}</h1>
+    <p>Escaneá para ver el menú y pedir</p>
+    <img src="${image}" alt="QR Mesa ${number}" />
+    <p class="url">${url}</p>
+  </div>
+  <script>window.onload = () => window.print();</script>
+</body>
+</html>`);
+    printWindow.document.close();
+  }
+
   copyQrLink(): void {
     const url = this.qrUrl();
 

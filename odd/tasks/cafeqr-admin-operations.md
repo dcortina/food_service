@@ -112,7 +112,8 @@ remaining admin placeholders.
 - A modifier group `Prueba E2E` with one option was created through the API used
   by the page.
 - No browser click-through was possible; validation was build + HTTP.
-- Remaining secondary gaps: cash movement/authorizer UI, menu service worker,
-  PDF QR exports, KDS sound alert, and physical printer validation.
+- Follow-up completed in `cafeqr-frontend-polish.md`: cash movements,
+  menu service worker, print/PDF QR, KDS sound, split payments, discounts, and
+  social channels. Physical printer validation remains on-site.
 
 Commit: `bd42147` (`feat(admin): complete operational management pages`).

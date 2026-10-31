@@ -53,6 +53,21 @@ export interface OpenShiftPayload {
   cajaId?: string;
 }
 
+export type CashMovementType =
+  | 'ingreso'
+  | 'retiro'
+  | 'gasto_menor'
+  | 'devolucion_efectivo'
+  | 'propina_efectivo'
+  | 'ajuste';
+
+export interface CreateMovementPayload {
+  tipo: CashMovementType;
+  monto: string;
+  motivo: string;
+  autorizadoPorId?: string;
+}
+
 export interface CloseShiftPayload {
   efectivoContado: string;
   observaciones?: string;
@@ -91,6 +106,16 @@ export class CashApi {
 
   open(payload: OpenShiftPayload): Observable<CashShift> {
     return this.http.post<CashShift>('/api/v1/cash/shifts/open', payload);
+  }
+
+  createMovement(
+    shiftId: string,
+    payload: CreateMovementPayload,
+  ): Observable<ShiftMovement> {
+    return this.http.post<ShiftMovement>(
+      `/api/v1/cash/shifts/${shiftId}/movements`,
+      payload,
+    );
   }
 
   close(id: string, payload: CloseShiftPayload): Observable<CashShift> {
