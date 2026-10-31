@@ -74,3 +74,29 @@ body {
       transparent 38%
     );
 }
+
+.nav-link {
+  color: #d6d3d1;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.nav-link.nav-link-active {
+  background-color: var(--color-mustard-400);
+  color: var(--color-charcoal);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 4px 6px -4px rgba(0, 0, 0, 0.2);
+}
+
+.nav-link.nav-link-active:hover {
+  background-color: var(--color-mustard-300);
+  color: var(--color-charcoal);
+}

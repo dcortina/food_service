@@ -34,10 +34,10 @@
       @for (item of nav(); track item.path) {
         <a
           [routerLink]="item.path"
-          routerLinkActive="bg-mustard-400 text-charcoal shadow-lg shadow-black/20"
+          routerLinkActive="nav-link-active"
           [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
           (click)="closeMobile()"
-          class="group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold text-stone-300 transition hover:bg-white/5 hover:text-white"
+          class="nav-link group flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold"
         >
           <svg
             class="h-5 w-5 shrink-0 opacity-80"
