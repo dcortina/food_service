@@ -55,7 +55,7 @@ menu, and can be ordered.
 - **T1** — `GET /catalog/currencies` and client types. `S1`. Done.
 - **T2** — Catalog admin page, product/category forms, modifier links. `S1`–`S3`. Done.
 - **T3** — Build and end-to-end API smoke test. `S4`. Done.
-- **T4** — Commit. `S1`–`S4`. In progress.
+- **T4** — Commit. `S1`–`S4`. Done.
 
 ## Log
 
@@ -93,4 +93,4 @@ seeded one. The missing piece was the admin catalog UI.
 - Remaining UI gaps: modifier group creation, delivery assignment/liquidation,
   reports page, tables/QR, and users.
 
-Commit: pending.
+Commit: `53e6045` (`feat(admin): add catalog management`).
