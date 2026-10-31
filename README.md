@@ -90,6 +90,10 @@ Categories and products are managed in **Administración → Catálogo**. The pa
 requires `catalogo.ver` to read and `catalogo.gestionar` to create or edit.
 Product prices use the active currencies from `/api/v1/catalog/currencies`.
 
+**Administración → Reportes** shows sales by channel, payment method, product,
+cashier, and courier, plus the open cash-close summary. CSV downloads require
+`reporte.exportar`.
+
 ## Workspace layout
 
 ```text

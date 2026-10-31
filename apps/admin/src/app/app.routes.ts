@@ -39,7 +39,11 @@ export const appRoutes: Routes = [
           import('./pages/couriers/couriers').then((m) => m.CouriersPage),
       },
       { path: 'users', ...comingSoon('Usuarios y roles') },
-      { path: 'reports', ...comingSoon('Reportes') },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./pages/reports/reports').then((m) => m.ReportsPage),
+      },
       {
         path: 'settings',
         loadComponent: () =>
