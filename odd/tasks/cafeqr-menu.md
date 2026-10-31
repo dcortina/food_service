@@ -5,7 +5,7 @@
 - **Branch:** `feat/frontend-foundation` (same branch)
 - **Delivery strategy:** `ask-on-risk`
 - **Test runner:** `corepack pnpm nx build menu` plus public HTTP smoke tests.
-- **Status:** In progress — verification and commit.
+- **Status:** Done — committed on `feat/frontend-foundation`, pending review/merge.
 
 ## Specs
 
