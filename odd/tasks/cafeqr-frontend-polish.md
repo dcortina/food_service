@@ -6,7 +6,7 @@
 - **Branch:** `feat/frontend-polish`
 - **Delivery strategy:** `ask-on-risk`
 - **Test runner:** `corepack pnpm nx build pos|kds|admin|menu` plus HTTP checks.
-- **Status:** In progress — verification and commit.
+- **Status:** Done — committed on `feat/frontend-polish`, pending review/merge.
 
 ## Specs
 
