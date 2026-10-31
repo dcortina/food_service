@@ -180,3 +180,14 @@ to evoke a fast-casual burger restaurant.
   the production build and HTTP contracts, not a click-through.
 
 Commit: `fdca83a` (`feat(admin): add dynamic branding and food-service theme`).
+
+### L7 — Sidebar hover contrast fix
+
+"lo unico que note es el hover del side menu que es de un colo amarillento y
+las letras de un colo de tono blanco por lo que no se distinguen bien cuando
+esta sobre el hover amarillo"
+
+The active item kept white text when hovered over the mustard background.
+Replaced the conflicting Tailwind hover utilities with explicit `.nav-link`
+states: inactive hover uses a subtle white overlay and white text; active hover
+uses mustard-300 with charcoal text. Commit `c1ac4b4`.
