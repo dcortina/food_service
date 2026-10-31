@@ -78,7 +78,7 @@ the API.
 - **T4** — Assigned orders and delivery actions. `S3`. Done.
 - **T5** — Liquidation summary/history. `S4`. Done.
 - **T6** — Build and HTTP smoke test. `S1`–`S5`. Done.
-- **T7** — Commit. `S1`–`S5`. In progress.
+- **T7** — Commit. `S1`–`S5`. Done.
 
 ## Log
 
@@ -120,4 +120,4 @@ Continue with the delivery slice after the menu PWA, on the same
 - No browser was available, so the UI was verified through build and HTTP
   contracts, not click-through.
 
-Commit: pending.
+Commit: `ea63df6` (`feat(delivery): add courier backend and app`).
