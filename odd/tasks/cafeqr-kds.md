@@ -69,7 +69,7 @@ API and realtime namespace.
 - **T3** — Item and order actions. `S3`. Done.
 - **T4** — Socket.IO realtime service and live indicator. `S4`. Done.
 - **T5** — Build and smoke test. `S1`–`S5`. Done.
-- **T6** — Commit. `S1`–`S5`. In progress.
+- **T6** — Commit. `S1`–`S5`. Done.
 
 ## Log
 
@@ -104,4 +104,4 @@ Continue the KDS on `feat/frontend-foundation`; no new branch.
   `pedido.item.actualizado` events for `#019`.
 - The smoke test left order `#019` in `listo` in the local demo database.
 
-Commit: pending.
+Commit: `b9a6fd1` (`feat(kds): add realtime kitchen display`).
