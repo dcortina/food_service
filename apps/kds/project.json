@@ -56,6 +56,9 @@
       },
       "executor": "@angular/build:dev-server",
       "defaultConfiguration": "development",
+      "options": {
+        "proxyConfig": "apps/kds/proxy.conf.json"
+      },
       "configurations": {
         "production": {
           "buildTarget": "kds:build:production"

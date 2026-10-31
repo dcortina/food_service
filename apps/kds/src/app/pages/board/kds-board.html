@@ -1,0 +1,182 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="text-sm font-bold uppercase tracking-[0.16em] text-mustard-300">
+      Cocina en vivo
+    </p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-white">
+      Tablero de pedidos
+    </h1>
+    <p class="mt-1 text-sm text-stone-400">
+      {{ orders().length }} pedidos · {{ totalItems() }} ítems en cocina
+    </p>
+  </div>
+  <button
+    type="button"
+    (click)="loadOrders()"
+    [disabled]="refreshing()"
+    class="inline-flex items-center justify-center gap-2 self-start rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-bold text-stone-200 transition hover:border-mustard-300/40 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+  >
+    <svg
+      class="h-4 w-4"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4.5 12a7.5 7.5 0 0113.15-4.95M19.5 12a7.5 7.5 0 01-13.15 4.95M4.5 5.25v4.5h4.5M19.5 18.75v-4.5h-4.5" />
+    </svg>
+    {{ refreshing() ? 'Actualizando...' : 'Actualizar' }}
+  </button>
+</div>
+
+@if (error()) {
+  <div
+    class="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm font-medium text-brand-200"
+  >
+    {{ error() }}
+    <button
+      type="button"
+      (click)="loadOrders()"
+      class="rounded-xl bg-brand-500 px-3 py-1.5 text-xs font-bold text-white"
+    >
+      Reintentar
+    </button>
+  </div>
+}
+
+@if (loading()) {
+  <div class="mt-5 grid gap-4 xl:grid-cols-3">
+    @for (item of [1, 2, 3]; track item) {
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-3">
+        <div class="h-5 w-32 animate-pulse rounded bg-white/10"></div>
+        <div class="mt-4 h-48 animate-pulse rounded-2xl bg-white/10"></div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="mt-5 grid gap-4 xl:grid-cols-3">
+    @for (column of columns(); track column.key) {
+      <section class="rounded-3xl border border-white/10 bg-white/[0.03] p-3">
+        <header class="flex items-center justify-between gap-2 px-1 pb-3">
+          <div class="flex items-center gap-2">
+            <span [class]="'h-2 w-2 rounded-full ' + column.dotClass"></span>
+            <div>
+              <h2 class="text-sm font-bold text-white">{{ column.title }}</h2>
+              <p class="text-[11px] text-stone-500">{{ column.subtitle }}</p>
+            </div>
+          </div>
+          <span
+            class="rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-bold text-stone-400"
+            >{{ column.orders.length }}</span
+          >
+        </header>
+
+        <div class="space-y-3">
+          @for (order of column.orders; track order.id) {
+            <article
+              class="rounded-2xl border-l-4 bg-white p-4 shadow-xl shadow-black/10"
+              [ngClass]="accentClass(order)"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-[11px] font-bold uppercase tracking-wide text-stone-400">
+                    {{
+                      order.mesa
+                        ? 'Mesa ' + order.mesa.numero
+                        : canalLabel(order.canal)
+                    }}
+                  </p>
+                  <p class="text-xl font-black tracking-tight text-charcoal">
+                    {{ order.codigoPublico }}
+                  </p>
+                  <p class="text-[11px] text-stone-400">
+                    {{ order.items.length }} ítems · {{ formatTime(order.creadoEn) }}
+                  </p>
+                </div>
+                <span [class]="elapsedClass(order)">{{ elapsed(order) }} min</span>
+              </div>
+
+              <div class="mt-3 space-y-2">
+                @for (item of order.items; track item.id) {
+                  <div class="rounded-xl bg-stone-50 p-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="text-sm font-bold text-charcoal">
+                          <span class="text-brand-600">{{ item.cantidad }}×</span>
+                          {{ item.productoNombre }}
+                        </p>
+                        @if (item.modificadores.length) {
+                          <p class="mt-0.5 text-[11px] leading-snug text-stone-500">
+                            {{ modifierNames(item) }}
+                          </p>
+                        }
+                        @if (item.notas) {
+                          <p class="mt-0.5 text-[11px] italic text-stone-400">
+                            “{{ item.notas }}”
+                          </p>
+                        }
+                      </div>
+                      <div class="shrink-0">
+                        @if (item.estadoItem === 'pendiente') {
+                          <button
+                            type="button"
+                            (click)="updateItem(order, item, 'en_preparacion')"
+                            [disabled]="isItemBusy(item.id)"
+                            class="rounded-xl bg-mustard-400 px-3 py-2 text-[11px] font-bold text-charcoal transition hover:bg-mustard-300 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {{ isItemBusy(item.id) ? '...' : 'Iniciar' }}
+                          </button>
+                        } @else if (item.estadoItem === 'en_preparacion') {
+                          <button
+                            type="button"
+                            (click)="updateItem(order, item, 'listo')"
+                            [disabled]="isItemBusy(item.id)"
+                            class="rounded-xl bg-lettuce px-3 py-2 text-[11px] font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {{ isItemBusy(item.id) ? '...' : 'Listo' }}
+                          </button>
+                        } @else {
+                          <span
+                            class="inline-flex items-center gap-1 rounded-full bg-lettuce/10 px-2.5 py-1 text-[10px] font-bold text-lettuce"
+                          >
+                            <span class="h-1 w-1 rounded-full bg-lettuce"></span>
+                            Listo
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              @if (!allReady(order)) {
+                <button
+                  type="button"
+                  (click)="markOrderReady(order)"
+                  [disabled]="isOrderBusy(order.id)"
+                  class="mt-3 w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-xs font-bold text-stone-700 transition hover:border-lettuce/40 hover:bg-lettuce/10 hover:text-lettuce disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {{ isOrderBusy(order.id) ? 'Marcando...' : 'Marcar todo listo' }}
+                </button>
+              }
+            </article>
+          } @empty {
+            <div
+              class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-4 py-10 text-center"
+            >
+              <p class="text-sm font-semibold text-stone-400">
+                No hay pedidos en esta columna.
+              </p>
+              <p class="mt-1 text-xs text-stone-600">
+                Los pedidos aparecen automáticamente.
+              </p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+}
