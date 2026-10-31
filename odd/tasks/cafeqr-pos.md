@@ -81,7 +81,7 @@ API.
 - **T4** — Orders board and payment dialog. `S3`. Done.
 - **T5** — Cash shift open/close. `S4`. Done.
 - **T6** — Tailwind/proxy, build, and HTTP smoke test. `S5`. Done.
-- **T7** — Commit. `S1`–`S5`. In progress.
+- **T7** — Commit. `S1`–`S5`. Done.
 
 ## Log
 
@@ -119,4 +119,4 @@ into the cashier's daily tool.
 - The smoke test left the cajero shift open with one payment in the local demo
   database. This is test data, not part of the seed.
 
-Commit: pending.
+Commit: `7fb6885` (`feat(pos): add cashier order, cash, and payment workspace`).
