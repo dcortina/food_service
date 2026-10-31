@@ -25,7 +25,11 @@ export const appRoutes: Routes = [
           import('./pages/dashboard/dashboard').then((m) => m.DashboardPage),
       },
       { path: 'orders', ...comingSoon('Pedidos') },
-      { path: 'catalog', ...comingSoon('Catálogo') },
+      {
+        path: 'catalog',
+        loadComponent: () =>
+          import('./pages/catalog/catalog').then((m) => m.CatalogPage),
+      },
       { path: 'tables', ...comingSoon('Mesas y códigos QR') },
       { path: 'cash', ...comingSoon('Caja') },
       { path: 'payments', ...comingSoon('Pagos') },

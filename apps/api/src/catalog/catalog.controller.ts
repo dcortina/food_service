@@ -35,6 +35,11 @@ import {
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
+  @Get('currencies')
+  listCurrencies() {
+    return this.catalogService.listCurrencies();
+  }
+
   @Get('categories')
   listCategories(@CurrentUser() user: AuthenticatedUser) {
     return this.catalogService.listCategories(user);

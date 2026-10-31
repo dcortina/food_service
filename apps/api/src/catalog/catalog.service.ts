@@ -74,6 +74,20 @@ export class CatalogService {
     return categories.map((category) => this.mapCategory(category));
   }
 
+  listCurrencies() {
+    return this.prisma.moneda.findMany({
+      where: { activo: true },
+      orderBy: { codigo: 'asc' },
+      select: {
+        id: true,
+        codigo: true,
+        nombre: true,
+        simbolo: true,
+        activo: true,
+      },
+    });
+  }
+
   async createCategory(dto: CreateCategoryDto, current: AuthenticatedUser) {
     const existing = await this.prisma.categoria.findFirst({
       where: {

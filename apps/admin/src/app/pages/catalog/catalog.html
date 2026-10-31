@@ -1,0 +1,612 @@
+<div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+  <div>
+    <p class="text-sm font-bold uppercase tracking-[0.16em] text-brand-600">
+      Catálogo
+    </p>
+    <h1 class="mt-1 text-3xl font-black tracking-tight text-charcoal">
+      Productos y precios
+    </h1>
+    <p class="mt-1 text-sm text-stone-500">
+      Cree categorías, productos y asocie grupos de modificadores.
+    </p>
+  </div>
+
+  @if (canManage()) {
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        (click)="openCreateCategory()"
+        class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+      >
+        Nueva categoría
+      </button>
+      <button
+        type="button"
+        (click)="openCreateProduct()"
+        class="rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+      >
+        Nuevo producto
+      </button>
+    </div>
+  } @else {
+    <span
+      class="self-start rounded-full bg-stone-100 px-3 py-1.5 text-xs font-bold text-stone-500 lg:self-auto"
+      >Solo lectura</span
+    >
+  }
+</div>
+
+<div class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-brand-500 bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Productos</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ products().length }}</p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-lettuce bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Disponibles</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ availableCount() }}</p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-mustard-400 bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Categorías</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ categories().length }}</p>
+  </article>
+  <article class="rounded-3xl border border-stone-200 border-l-4 border-l-charcoal bg-white p-4 shadow-sm">
+    <p class="text-xs font-semibold text-stone-500">Grupos de modificadores</p>
+    <p class="mt-1 text-2xl font-black text-charcoal">{{ groups().length }}</p>
+  </article>
+</div>
+
+@if (success()) {
+  <div class="mt-4 rounded-2xl border border-lettuce/20 bg-lettuce/10 px-4 py-3 text-sm font-medium text-lettuce">
+    {{ success() }}
+  </div>
+}
+
+@if (error()) {
+  <div class="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm font-medium text-brand-700">
+    {{ error() }}
+    <button
+      type="button"
+      (click)="load()"
+      class="rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white"
+    >
+      Reintentar
+    </button>
+  </div>
+}
+
+<div class="mt-5 flex gap-2">
+  <button
+    type="button"
+    (click)="setTab('products')"
+    [ngClass]="
+      activeTab() === 'products'
+        ? 'bg-charcoal text-white shadow-sm'
+        : 'bg-white text-stone-600 hover:bg-stone-100'
+    "
+    class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold transition"
+  >
+    Productos ({{ products().length }})
+  </button>
+  <button
+    type="button"
+    (click)="setTab('categories')"
+    [ngClass]="
+      activeTab() === 'categories'
+        ? 'bg-charcoal text-white shadow-sm'
+        : 'bg-white text-stone-600 hover:bg-stone-100'
+    "
+    class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold transition"
+  >
+    Categorías ({{ categories().length }})
+  </button>
+</div>
+
+@if (loading()) {
+  <div class="mt-5 space-y-3">
+    @for (item of [1, 2, 3, 4]; track item) {
+      <div class="h-20 animate-pulse rounded-3xl border border-stone-200 bg-white"></div>
+    }
+  </div>
+} @else if (activeTab() === 'products') {
+  <section class="mt-5 rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <div class="flex flex-col gap-3 border-b border-stone-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div class="relative flex-1">
+        <svg
+          class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+        </svg>
+        <input
+          type="search"
+          [value]="search()"
+          (input)="setSearch($event)"
+          placeholder="Buscar producto..."
+          class="block w-full rounded-2xl border border-stone-300 bg-stone-50 py-2.5 pl-9 pr-3.5 text-sm text-charcoal outline-none placeholder:text-stone-400 focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-500/10"
+        />
+      </div>
+      <span class="text-xs font-medium text-stone-400">
+        {{ filteredProducts().length }} resultados
+      </span>
+    </div>
+
+    <div class="flex gap-2 overflow-x-auto border-b border-stone-100 px-4 py-3 sm:px-5">
+      <button
+        type="button"
+        (click)="selectCategory(null)"
+        [ngClass]="
+          categoryFilter() === null
+            ? 'bg-charcoal text-white'
+            : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+        "
+        class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold transition"
+      >
+        Todas
+      </button>
+      @for (category of categories(); track category.id) {
+        <button
+          type="button"
+          (click)="selectCategory(category.id)"
+          [ngClass]="
+            categoryFilter() === category.id
+              ? 'bg-charcoal text-white'
+              : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+          "
+          class="whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-bold transition"
+        >
+          {{ category.nombre }}
+        </button>
+      }
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[760px] text-left text-sm">
+        <thead class="bg-stone-50 text-[11px] uppercase tracking-wide text-stone-400">
+          <tr>
+            <th class="px-5 py-3 font-semibold">Producto</th>
+            <th class="px-5 py-3 font-semibold">Categoría</th>
+            <th class="px-5 py-3 font-semibold">Precio</th>
+            <th class="px-5 py-3 font-semibold">Modificadores</th>
+            <th class="px-5 py-3 font-semibold">Estado</th>
+            <th class="px-5 py-3 text-right font-semibold">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of filteredProducts(); track product.id) {
+            <tr class="border-t border-stone-100">
+              <td class="px-5 py-3">
+                <p class="font-semibold text-charcoal">{{ product.nombre }}</p>
+                <p class="max-w-xs truncate text-xs text-stone-400">
+                  {{ product.descripcion || 'Sin descripción' }}
+                </p>
+              </td>
+              <td class="px-5 py-3">
+                <span class="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">
+                  {{ product.categoria.nombre }}
+                </span>
+              </td>
+              <td class="px-5 py-3 font-black text-charcoal">
+                $ {{ money(productPrice(product)) }}
+              </td>
+              <td class="px-5 py-3 text-xs text-stone-500">
+                {{ productModifiers(product) }}
+              </td>
+              <td class="px-5 py-3">
+                <span
+                  [ngClass]="
+                    product.disponible
+                      ? 'bg-lettuce/10 text-lettuce'
+                      : 'bg-stone-100 text-stone-500'
+                  "
+                  class="inline-flex rounded-full px-2 py-0.5 text-xs font-bold"
+                >
+                  {{ product.disponible ? 'Disponible' : 'No disponible' }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-right">
+                @if (canManage()) {
+                  <div class="flex justify-end gap-1.5">
+                    <button
+                      type="button"
+                      (click)="openEditProduct(product)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-600 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      (click)="toggleAvailability(product)"
+                      [disabled]="isToggling(product.id)"
+                      class="rounded-xl border border-stone-200 px-2.5 py-1.5 text-xs font-bold text-stone-600 transition hover:border-mustard-300 hover:bg-mustard-50 hover:text-mustard-800 disabled:opacity-50"
+                    >
+                      {{ isToggling(product.id) ? '...' : product.disponible ? 'Pausar' : 'Activar' }}
+                    </button>
+                  </div>
+                } @else {
+                  <span class="text-xs text-stone-400">—</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="px-5 py-10 text-center text-sm text-stone-500">
+                No hay productos para esta búsqueda.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+} @else {
+  <section class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    @for (category of categories(); track category.id) {
+      <article class="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-lg font-black text-charcoal">{{ category.nombre }}</p>
+            <p class="mt-1 text-xs text-stone-400">
+              {{ category.productosCount }}
+              {{ category.productosCount === 1 ? 'producto' : 'productos' }} ·
+              orden {{ category.orden }}
+            </p>
+          </div>
+          <span
+            [ngClass]="
+              category.activo
+                ? 'bg-lettuce/10 text-lettuce'
+                : 'bg-stone-100 text-stone-500'
+            "
+            class="rounded-full px-2 py-0.5 text-[10px] font-bold"
+          >
+            {{ category.activo ? 'Activa' : 'Inactiva' }}
+          </span>
+        </div>
+        @if (canManage()) {
+          <button
+            type="button"
+            (click)="openEditCategory(category)"
+            class="mt-4 w-full rounded-xl border border-stone-200 px-3 py-2 text-xs font-bold text-stone-600 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+          >
+            Editar categoría
+          </button>
+        }
+      </article>
+    } @empty {
+      <div class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white p-10 text-center">
+        <p class="text-sm font-semibold text-stone-600">
+          No hay categorías todavía.
+        </p>
+        @if (canManage()) {
+          <button
+            type="button"
+            (click)="openCreateCategory()"
+            class="mt-4 rounded-2xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-700"
+          >
+            Crear la primera categoría
+          </button>
+        }
+      </div>
+    }
+  </section>
+}
+
+@if (productFormOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    (click)="closeProductForm()"
+  >
+    <div
+      class="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+            {{ editingProduct() ? 'Editar producto' : 'Nuevo producto' }}
+          </p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+            {{ editingProduct()?.nombre || 'Producto del catálogo' }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          (click)="closeProductForm()"
+          class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+          aria-label="Cerrar"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form class="mt-5 space-y-4" [formGroup]="productForm" (ngSubmit)="saveProduct()">
+        @if (categories().length === 0) {
+          <div class="rounded-2xl border border-mustard-200 bg-mustard-50 px-4 py-3 text-sm text-mustard-800">
+            Primero cree una categoría para poder guardar productos.
+          </div>
+        }
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block text-sm font-semibold text-stone-700">
+            Categoría
+            <select
+              formControlName="categoriaId"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            >
+              <option value="">Seleccione una categoría</option>
+              @for (category of categories(); track category.id) {
+                <option [value]="category.id">{{ category.nombre }}</option>
+              }
+            </select>
+            @if (
+              productForm.controls.categoriaId.touched &&
+              productForm.controls.categoriaId.hasError('required')
+            ) {
+              <p class="mt-1 text-xs text-brand-700">La categoría es obligatoria.</p>
+            }
+          </label>
+
+          <label class="block text-sm font-semibold text-stone-700">
+            Nombre
+            <input
+              type="text"
+              formControlName="nombre"
+              placeholder="Ej. Hamburguesa clásica"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+            @if (
+              productForm.controls.nombre.touched &&
+              productForm.controls.nombre.hasError('required')
+            ) {
+              <p class="mt-1 text-xs text-brand-700">El nombre es obligatorio.</p>
+            }
+          </label>
+        </div>
+
+        <label class="block text-sm font-semibold text-stone-700">
+          Descripción
+          <textarea
+            rows="2"
+            formControlName="descripcion"
+            placeholder="Ingredientes, tamaño o detalle del producto"
+            class="mt-1.5 block w-full resize-none rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          ></textarea>
+        </label>
+
+        <div class="grid gap-4 sm:grid-cols-3">
+          <label class="block text-sm font-semibold text-stone-700">
+            Precio
+            <input
+              type="text"
+              inputmode="decimal"
+              formControlName="precio"
+              placeholder="180.00"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+            @if (
+              productForm.controls.precio.touched &&
+              productForm.controls.precio.invalid
+            ) {
+              <p class="mt-1 text-xs text-brand-700">Use un precio como 180.00.</p>
+            }
+          </label>
+
+          <label class="block text-sm font-semibold text-stone-700">
+            Moneda
+            <select
+              formControlName="monedaId"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            >
+              @for (currency of currencies(); track currency.id) {
+                <option [value]="currency.id">
+                  {{ currency.codigo }} {{ currency.simbolo }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <label class="block text-sm font-semibold text-stone-700">
+            Preparación (min)
+            <input
+              type="number"
+              min="1"
+              formControlName="tiempoPreparacionMin"
+              class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+            />
+          </label>
+        </div>
+
+        <label class="block text-sm font-semibold text-stone-700">
+          Imagen (URL opcional)
+          <input
+            type="text"
+            formControlName="imagenUrl"
+            placeholder="https://..."
+            class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          />
+        </label>
+
+        <label class="flex items-center gap-2 text-sm font-semibold text-stone-700">
+          <input
+            type="checkbox"
+            formControlName="disponible"
+            class="h-4 w-4 accent-brand-600"
+          />
+          Disponible para vender
+        </label>
+
+        <div>
+          <p class="text-sm font-semibold text-stone-700">Grupos de modificadores</p>
+          <p class="mt-0.5 text-xs text-stone-400">
+            Se pueden asociar grupos existentes; se administran desde el seed o la API.
+          </p>
+          <div class="mt-2 grid gap-2 sm:grid-cols-2">
+            @for (group of groups(); track group.id) {
+              <label
+                class="flex cursor-pointer items-start gap-2 rounded-2xl border border-stone-200 p-3 transition hover:border-brand-200"
+                [ngClass]="isGroupSelected(group.id) ? 'border-brand-300 bg-brand-50' : ''"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="isGroupSelected(group.id)"
+                  (change)="toggleGroup(group.id)"
+                  class="mt-0.5 h-4 w-4 accent-brand-600"
+                />
+                <span>
+                  <span class="block text-sm font-semibold text-charcoal">{{ group.nombre }}</span>
+                  <span class="block text-[11px] text-stone-400">{{ groupSummary(group) }}</span>
+                </span>
+              </label>
+            } @empty {
+              <p class="text-xs text-stone-400">No hay grupos de modificadores.</p>
+            }
+          </div>
+        </div>
+
+        @if (productError()) {
+          <div class="rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700">
+            {{ productError() }}
+          </div>
+        }
+
+        <div class="flex justify-end gap-2 border-t border-stone-100 pt-4">
+          <button
+            type="button"
+            (click)="closeProductForm()"
+            [disabled]="savingProduct()"
+            class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="savingProduct()"
+            class="rounded-2xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ savingProduct() ? 'Guardando...' : editingProduct() ? 'Guardar cambios' : 'Crear producto' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (categoryFormOpen()) {
+  <div
+    class="fixed inset-0 z-50 flex items-end justify-center bg-charcoal/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    (click)="closeCategoryForm()"
+  >
+    <div
+      class="w-full max-w-md rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600">
+            {{ editingCategory() ? 'Editar categoría' : 'Nueva categoría' }}
+          </p>
+          <h2 class="mt-1 text-2xl font-black tracking-tight text-charcoal">
+            {{ editingCategory()?.nombre || 'Categoría del catálogo' }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          (click)="closeCategoryForm()"
+          class="rounded-xl p-2 text-stone-400 transition hover:bg-stone-100 hover:text-charcoal"
+          aria-label="Cerrar"
+        >
+          <svg
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form class="mt-5 space-y-4" [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+        <label class="block text-sm font-semibold text-stone-700">
+          Nombre
+          <input
+            type="text"
+            formControlName="nombre"
+            placeholder="Ej. Hamburguesas"
+            class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none placeholder:text-stone-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          />
+          @if (
+            categoryForm.controls.nombre.touched &&
+            categoryForm.controls.nombre.invalid
+          ) {
+            <p class="mt-1 text-xs text-brand-700">Ingrese un nombre válido.</p>
+          }
+        </label>
+
+        <label class="block text-sm font-semibold text-stone-700">
+          Orden
+          <input
+            type="number"
+            min="0"
+            formControlName="orden"
+            class="mt-1.5 block w-full rounded-2xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-charcoal shadow-sm outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10"
+          />
+        </label>
+
+        <label class="flex items-center gap-2 text-sm font-semibold text-stone-700">
+          <input
+            type="checkbox"
+            formControlName="activo"
+            class="h-4 w-4 accent-brand-600"
+          />
+          Categoría activa
+        </label>
+
+        @if (categoryError()) {
+          <div class="rounded-2xl border border-brand-200 bg-brand-50 px-3.5 py-2.5 text-sm text-brand-700">
+            {{ categoryError() }}
+          </div>
+        }
+
+        <div class="flex justify-end gap-2 border-t border-stone-100 pt-4">
+          <button
+            type="button"
+            (click)="closeCategoryForm()"
+            [disabled]="savingCategory()"
+            class="rounded-2xl border border-stone-300 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition hover:bg-stone-50 disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="savingCategory()"
+            class="rounded-2xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ savingCategory() ? 'Guardando...' : editingCategory() ? 'Guardar cambios' : 'Crear categoría' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

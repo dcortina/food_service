@@ -87,6 +87,10 @@ The business name and logo are managed in **Administración → Configuración**
 login page reads the public branding from `/api/v1/public/branding`, so the same
 identity is shown before authentication.
 
+Categories and products are managed in **Administración → Catálogo**. The page
+requires `catalogo.ver` to read and `catalogo.gestionar` to create or edit.
+Product prices use the active currencies from `/api/v1/catalog/currencies`.
+
 ## Workspace layout
 
 ```text
